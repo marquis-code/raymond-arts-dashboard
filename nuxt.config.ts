@@ -1,89 +1,85 @@
-import { defineNuxtConfig } from "nuxt/config";
+export default {
+  ssr: false,
+  target: "static",
+  app: {
+    head: {
+      title: "Black Country",
+      htmlAttrs: { lang: "en" },
+      meta: [
+        { charset: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { name: "format-detection", content: "telephone=no" },
+      ],
+      link: [
+        { rel: "icon", type: "image/x-icon", href: "/favicon.svg" },
+        { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/driver.js/dist/driver.min.css' }
+      ],
+      script: [
+        {
+          src: "https://newwebpay.qa.interswitchng.com/inline-checkout.js",
+          defer: true,
+        },
 
-export default defineNuxtConfig({
-  postcss: {
-    plugins: {
-      "postcss-import": {},
-      "tailwindcss/nesting": {},
-      tailwindcss: {},
-      autoprefixer: {},
+      ]
     },
   },
-  plugins: ["~/plugins/aos.client.ts"],
-  modules: ['@kevinmarrec/nuxt-pwa', "nuxt-emoji-picker"],
-  nitro: {
-    prerender: {
-      routes: ['/'],  // Specify only static, easily prerenderable routes here
-      ignore: ['/dashboard', '/dashboard/content', '/dashboard/challenge/create', '/dashboard/challenge']
+  modules: ["@nuxtjs/tailwindcss"],
+  css: ["/assets/css/main.css"],
+
+  tailwindcss: {
+    cssPath: "@/assets/css/main.css",
+  },
+  build: {
+    transpile: ["@pdftron/webviewer", 'vee-validate'],
+  },
+  runtimeConfig: {
+    public: {
+      googleMapsApiKey: 'AIzaSyCTBVK36LVNlXs_qBOC4RywX_Ihf765lDg',
+      // imageBaseUrl: process.env.VITE_IMAGE_URL || 'https://blackcountrypub.blob.core.windows.net/assets/', 
     }
   },
-  pwa: {
-    workbox: {
-      enabled: true
-    },
-    meta: {
-      title: "Chub Admin",
-      author: "Marquis",
-      mobileAppIOS: false,
-      mobileApp: true,
-      description:
-        "Fun, Community, Growth",
-      theme_color: "#27396B",
-      background_color: "#27396B",
-      display: "standalone",
-      start_url: "/",
-      nativeUI: true,
-    },
-    icon: {
-      sizes: [64, 120, 144, 152, 192, 384, 512],
-    },
-    manifest: {
-      name: "Achilles Drill",
-      lang: "fa",
-      useWebmanifestExtension: false,
-    },
-    runtimeCaching: [
-      {
-        urlPattern: "https://fonts.googleapis.com/.*",
-        handler: "cacheFirst",
-        method: "GET",
-        strategyOptions: { cacheableResponse: { statuses: [0, 200] } },
-      },
-      {
-        urlPattern: "https://fonts.gstatic.com/.*",
-        handler: "cacheFirst",
-        method: "GET",
-        strategyOptions: { cacheableResponse: { statuses: [0, 200] } },
-      },
-      {
-        urlPattern: "https://cdn.snipcart.com/.*",
-        method: "GET",
-        strategyOptions: { cacheableResponse: { statuses: [0, 200] } },
-      },
-      {
-        urlPattern:
-          "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js",
-        handler: "cacheFirst",
-        method: "GET",
-        strategyOptions: { cacheableResponse: { statuses: [0, 200] } },
-      },
-    ],
-  }
-  // modules: [
-  //   '@nuxtjs/pwa'
-  // ],
-  // pwa: {
-  //   manifest: {
-  //     name: 'My Awesome Nuxt 3 PWA',
-  //     short_name: 'Nuxt3PWA',
-  //     lang: 'en',
-  //     useWebmanifestExtension: false,
-  //     display: 'standalone',
-  //     theme_color: '#4DBA87',
-  //     background_color: '#000000'
-  //   },
-  //   workbox: {
-  //     // Workbox options for customizing the service worker
+  // router: {
+  //   extendRoutes(routes: any, resolve: any) {
+  //     // Adjust all routes to be prefixed with `/about/`
+  //     routes.forEach((route: any) => {
+  //       if (route.path !== '/tenant') {
+  //          route.path = `/tenant${route.path}`
+  //       }
+  //     })
   //   }
-  // }
-});
+  // },
+
+  axios: {
+    timeout: 10000, // Example: set timeout to 10 seconds
+    // Axios options here
+  },
+
+  plugins: [],
+
+  vite: {
+    optimizeDeps: {
+      include: ['fast-deep-equal']
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("pdfjs-dist")) {
+              return "pdfjs";
+            }
+          },
+        },
+      },
+      // transpile: ['@vueup/vue-quill'],
+    },
+    server: {
+      port: 3001
+      // fs: {
+      //   allow: ["public/lib"],
+      // },
+    },
+  },
+
+
+  compatibilityDate: "2024-09-30"
+};
