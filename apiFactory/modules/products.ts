@@ -1,4 +1,4 @@
-import { axiosInstance } from "../axios.config";
+import { GATEWAY_ENDPOINT } from "../axios.config";
 
 interface PaginationDTO {
     page: number
@@ -38,57 +38,57 @@ interface CreateParoductDto {
 
 export const product_api = {
   $_create_product(data: CreateParoductDto) {
-    return axiosInstance.post("/products", data);
+    return GATEWAY_ENDPOINT.post("/products", data);
   },
   $_fetch_products(metadata: PaginationDTO) {
-    return axiosInstance.get(`/products?page=${metadata.page}&limit=${metadata.limit}&sort=${metadata.sort}&order=${metadata.order}&search=${metadata.search}`);
+    return GATEWAY_ENDPOINT.get(`/products?page=${metadata.page}&limit=${metadata.limit}&sort=${metadata.sort}&order=${metadata.order}&search=${metadata.search}`);
   },
   $_fetch_featured_products(metadata: { limit: number }) {
-    return axiosInstance.get(`/products/featured?limit=${metadata.limit}`);
+    return GATEWAY_ENDPOINT.get(`/products/featured?limit=${metadata.limit}`);
   },
   $_get_new_products(metadata: { limit: number }) {
-    return axiosInstance.get(`/products/new?limit=${metadata.limit}`);
+    return GATEWAY_ENDPOINT.get(`/products/new?limit=${metadata.limit}`);
   },
   $_get_new_best_seller_products(metadata: { limit: number }) {
-    return axiosInstance.get(`/products/bestsellers?limit=${metadata.limit}`);
+    return GATEWAY_ENDPOINT.get(`/products/bestsellers?limit=${metadata.limit}`);
   },
   $_search_product(metadata: PaginationDTO) {
-    return axiosInstance.get(`/products/search?page=${metadata.page}&limit=${metadata.limit}&sort=${metadata.sort}&order=${metadata.order}&q=${metadata.search}`);
+    return GATEWAY_ENDPOINT.get(`/products/search?page=${metadata.page}&limit=${metadata.limit}&sort=${metadata.sort}&order=${metadata.order}&q=${metadata.search}`);
   },
   $_get_product_by_category(id: string) {
-    return axiosInstance.post(`/products/category/${id}`);
+    return GATEWAY_ENDPOINT.post(`/products/category/${id}`);
   },
   $_update_product(id: string, payload: CreateParoductDto) {
-    return axiosInstance.patch(`/products/${id}`, payload);
+    return GATEWAY_ENDPOINT.patch(`/products/${id}`, payload);
   },
   $_delete_product(id: string) {
-    return axiosInstance.delete(`/products/${id}`);
+    return GATEWAY_ENDPOINT.delete(`/products/${id}`);
   },
   $_get_product_by_id(id: string) {
-    return axiosInstance.post(`/products/${id}`);
+    return GATEWAY_ENDPOINT.post(`/products/${id}`);
   },
   $_upload_product_image(id: string) {
-    return axiosInstance.post(`/products/${id}/images`);
+    return GATEWAY_ENDPOINT.post(`/products/${id}/images`);
   },
   $_remove_product_image(id: string) {
-    return axiosInstance.delete(`/products/${id}/images`);
+    return GATEWAY_ENDPOINT.delete(`/products/${id}/images`);
   },
   $_create_product_category(data: CategoryDTO) {
-    return axiosInstance.post("/products/categories", data);
+    return GATEWAY_ENDPOINT.post("/products/categories", data);
   },
   $_get_categories () {
-    return axiosInstance.get("/products/categories");
+    return GATEWAY_ENDPOINT.get("/products/categories");
   },
   $_update_category(id: string, payload: CategoryDTO) {
-    return axiosInstance.patch(`/products/categories/${id}`, payload);
+    return GATEWAY_ENDPOINT.patch(`/products/categories/${id}`, payload);
   },
   $_delete_category(id: string) {
-    return axiosInstance.delete(`/products/categories/${id}`);
+    return GATEWAY_ENDPOINT.delete(`/products/categories/${id}`);
   },
   $_get_category_by_id(id: string) {
-    return axiosInstance.get(`/products/categories/${id}`);
+    return GATEWAY_ENDPOINT.get(`/products/categories/${id}`);
   },
   $_upload_category_image(id: string) {
-    return axiosInstance.post(`/products/categories/${id}/image`);
+    return GATEWAY_ENDPOINT.post(`/products/categories/${id}/image`);
   },
 };

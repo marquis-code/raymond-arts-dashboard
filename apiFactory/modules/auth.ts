@@ -1,7 +1,10 @@
-import { axiosInstance } from "../axios.config";
+import { GATEWAY_ENDPOINT } from "../axios.config";
 
-export const authApiFactory = {
+export const auth_api = {
   $_login(data: any) {
-    return axiosInstance.post("admin/auth/login", data);
+    return GATEWAY_ENDPOINT.post("/auth/login", data);
+  },
+  $_signup(data: any) {
+    return GATEWAY_ENDPOINT.post("/auth/register", data);
   }
 };
