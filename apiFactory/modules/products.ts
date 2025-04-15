@@ -37,11 +37,12 @@ interface CreateParoductDto {
 }
 
 export const product_api = {
-  $_create_product(data: CreateParoductDto) {
+  $_create_product(data: CreateParoductDto | any) {
     return GATEWAY_ENDPOINT.post("/products", data);
   },
-  $_fetch_products(metadata: PaginationDTO) {
-    return GATEWAY_ENDPOINT.get(`/products?page=${metadata.page}&limit=${metadata.limit}&sort=${metadata.sort}&order=${metadata.order}&search=${metadata.search}`);
+  $_fetch_products() {
+    // return GATEWAY_ENDPOINT.get(`/products?page=${metadata.page}&limit=${metadata.limit}&sort=${metadata.sort}&order=${metadata.order}&search=${metadata.search}`);
+    return GATEWAY_ENDPOINT.get('/products');
   },
   $_fetch_featured_products(metadata: { limit: number }) {
     return GATEWAY_ENDPOINT.get(`/products/featured?limit=${metadata.limit}`);

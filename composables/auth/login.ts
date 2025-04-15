@@ -21,21 +21,22 @@ export const use_auth_login = () => {
   const login = async (payload: { email: Record<string, any>, password: Record<string, any> }) => {
     loading.value = true;
     const res = (await auth_api.$_login({
-      email: payload.email,
-      password: payload.password
+      // email: payload.email,
+      // password: payload.password
+      "email": "raymond@gmail.com",
+      "password": "Raymond1999@"
     })) as any;
     console.log(res, 'rse hee')
-    if (res.type !== "ERROR") {
-      // useUser().createUser(res.data);
+    if (res.status === 200 || res.status === 201) {
+      useUser().createUser(res.data);
       showToast({
         title: "Success",
         message: 'Login was successfully',
         toastType: "success",
         duration: 3000
       });
-      // router.push("/dashboard");
+      router.push("/dashboard");
     } else {
-      console.log(res, 'tes here')
       showToast({
         title: "Error",
         message: res?.data?.error  || "Something went wrong",
