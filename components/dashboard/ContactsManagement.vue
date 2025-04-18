@@ -28,7 +28,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label for="type-filter" class="block text-sm font-medium text-gray-700 mb-1">Contact Type</label>
-            <select id="type-filter" v-model="filters.type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="type-filter" v-model="filters.type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Types</option>
               <option value="customer">Customer</option>
               <option value="collector">Collector</option>
@@ -39,7 +39,7 @@
           </div>
           <div>
             <label for="sort-by" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
-            <select id="sort-by" v-model="filters.sortBy" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="sort-by" v-model="filters.sortBy" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="name-asc">Name (A-Z)</option>
               <option value="name-desc">Name (Z-A)</option>
               <option value="date-asc">Date Added (Oldest)</option>
@@ -48,7 +48,7 @@
           </div>
           <div>
             <label for="tag-filter" class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-            <select id="tag-filter" v-model="filters.tag" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="tag-filter" v-model="filters.tag" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Tags</option>
               <option value="vip">VIP</option>
               <option value="repeat">Repeat Customer</option>
@@ -286,11 +286,11 @@
                   <div class="mt-4 space-y-4">
                     <div>
                       <label for="contact-name" class="block text-sm font-medium text-gray-700">Name</label>
-                      <input type="text" id="contact-name" v-model="currentContact.name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500" />
+                      <input type="text" id="contact-name" v-model="currentContact.name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
                     </div>
                     <div>
                       <label for="contact-type" class="block text-sm font-medium text-gray-700">Contact Type</label>
-                      <select id="contact-type" v-model="currentContact.type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+                      <select id="contact-type" v-model="currentContact.type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
                         <option value="customer">Customer</option>
                         <option value="collector">Collector</option>
                         <option value="gallery">Gallery</option>
@@ -300,15 +300,15 @@
                     </div>
                     <div>
                       <label for="contact-email" class="block text-sm font-medium text-gray-700">Email</label>
-                      <input type="email" id="contact-email" v-model="currentContact.email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500" />
+                      <input type="email" id="contact-email" v-model="currentContact.email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
                     </div>
                     <div>
                       <label for="contact-phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                      <input type="tel" id="contact-phone" v-model="currentContact.phone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500" />
+                      <input type="tel" id="contact-phone" v-model="currentContact.phone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
                     </div>
                     <div>
                       <label for="contact-address" class="block text-sm font-medium text-gray-700">Address</label>
-                      <textarea id="contact-address" v-model="currentContact.address" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500"></textarea>
+                      <textarea id="contact-address" v-model="currentContact.address" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"></textarea>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
@@ -332,7 +332,7 @@
                     </div>
                     <div>
                       <label for="contact-notes" class="block text-sm font-medium text-gray-700">Notes</label>
-                      <textarea id="contact-notes" v-model="currentContact.notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500"></textarea>
+                      <textarea id="contact-notes" v-model="currentContact.notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"></textarea>
                     </div>
                   </div>
                 </div>

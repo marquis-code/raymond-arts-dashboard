@@ -28,7 +28,7 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label for="category-filter" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <select id="category-filter" v-model="filters.category" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="category-filter" v-model="filters.category" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Categories</option>
               <option value="painting">Paintings</option>
               <option value="print">Prints</option>
@@ -39,7 +39,7 @@
           </div>
           <div>
             <label for="stock-status" class="block text-sm font-medium text-gray-700 mb-1">Stock Status</label>
-            <select id="stock-status" v-model="filters.stockStatus" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="stock-status" v-model="filters.stockStatus" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Status</option>
               <option value="in-stock">In Stock</option>
               <option value="low-stock">Low Stock</option>
@@ -48,7 +48,7 @@
           </div>
           <div>
             <label for="sort-by" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
-            <select id="sort-by" v-model="filters.sortBy" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="sort-by" v-model="filters.sortBy" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="name-asc">Name (A-Z)</option>
               <option value="name-desc">Name (Z-A)</option>
               <option value="stock-asc">Stock (Low to High)</option>
@@ -64,14 +64,14 @@
                 type="number" 
                 v-model="filters.minPrice" 
                 placeholder="Min" 
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"
               />
               <span>-</span>
               <input 
                 type="number" 
                 v-model="filters.maxPrice" 
                 placeholder="Max" 
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"
               />
             </div>
           </div>
@@ -225,15 +225,15 @@
                   <div class="mt-4 space-y-4">
                     <div>
                       <label for="item-name" class="block text-sm font-medium text-gray-700">Product Name</label>
-                      <input type="text" id="item-name" v-model="currentItem.name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500" />
+                      <input type="text" id="item-name" v-model="currentItem.name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
                     </div>
                     <div>
                       <label for="item-sku" class="block text-sm font-medium text-gray-700">SKU</label>
-                      <input type="text" id="item-sku" v-model="currentItem.sku" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500" />
+                      <input type="text" id="item-sku" v-model="currentItem.sku" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
                     </div>
                     <div>
                       <label for="item-category" class="block text-sm font-medium text-gray-700">Category</label>
-                      <select id="item-category" v-model="currentItem.category" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+                      <select id="item-category" v-model="currentItem.category" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
                         <option value="painting">Painting</option>
                         <option value="print">Print</option>
                         <option value="digital">Digital Art</option>
@@ -243,15 +243,15 @@
                     </div>
                     <div>
                       <label for="item-price" class="block text-sm font-medium text-gray-700">Price ($)</label>
-                      <input type="number" id="item-price" v-model="currentItem.price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500" />
+                      <input type="number" id="item-price" v-model="currentItem.price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
                     </div>
                     <div>
                       <label for="item-stock" class="block text-sm font-medium text-gray-700">Stock Quantity</label>
-                      <input type="number" id="item-stock" v-model="currentItem.stock" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500" />
+                      <input type="number" id="item-stock" v-model="currentItem.stock" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
                     </div>
                     <div>
                       <label for="item-description" class="block text-sm font-medium text-gray-700">Description</label>
-                      <textarea id="item-description" v-model="currentItem.description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500"></textarea>
+                      <textarea id="item-description" v-model="currentItem.description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"></textarea>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Image</label>
@@ -304,7 +304,7 @@
                     </div>
                     <div>
                       <label for="adjustment-type" class="block text-sm font-medium text-gray-700">Adjustment Type</label>
-                      <select id="adjustment-type" v-model="stockAdjustment.type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+                      <select id="adjustment-type" v-model="stockAdjustment.type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
                         <option value="add">Add Stock</option>
                         <option value="remove">Remove Stock</option>
                         <option value="set">Set Stock</option>
@@ -312,11 +312,11 @@
                     </div>
                     <div>
                       <label for="adjustment-quantity" class="block text-sm font-medium text-gray-700">Quantity</label>
-                      <input type="number" id="adjustment-quantity" v-model="stockAdjustment.quantity" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500" />
+                      <input type="number" id="adjustment-quantity" v-model="stockAdjustment.quantity" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
                     </div>
                     <div>
                       <label for="adjustment-reason" class="block text-sm font-medium text-gray-700">Reason</label>
-                      <select id="adjustment-reason" v-model="stockAdjustment.reason" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+                      <select id="adjustment-reason" v-model="stockAdjustment.reason" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
                         <option value="purchase">New Purchase</option>
                         <option value="sale">Sale</option>
                         <option value="return">Return</option>
@@ -326,7 +326,7 @@
                     </div>
                     <div>
                       <label for="adjustment-notes" class="block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                      <textarea id="adjustment-notes" v-model="stockAdjustment.notes" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500"></textarea>
+                      <textarea id="adjustment-notes" v-model="stockAdjustment.notes" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"></textarea>
                     </div>
                   </div>
                 </div>

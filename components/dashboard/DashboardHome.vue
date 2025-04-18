@@ -22,7 +22,7 @@
           </div>
         </div>
       </div>
-  
+        <!-- {{orders}} -->
       <!-- Recent Activity and Sales Chart -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Sales Chart -->
@@ -52,23 +52,25 @@
   
         <!-- Recent Activity -->
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+          <!-- {{auditsList}} -->
           <h2 class="text-lg font-semibold text-gray-900 mb-6">Recent Activity</h2>
           <div class="space-y-4">
-            <div v-for="(activity, index) in recentActivities" :key="index" class="flex">
+            <div v-for="(activity, index) in auditsList.slice(0, 5)" :key="index" class="flex">
               <div class="mr-4 flex-shrink-0">
-                <div class="h-8 w-8 rounded-full flex items-center justify-center" :class="activity.bgColor">
-                  <component :is="activity.icon" class="h-4 w-4" :class="activity.iconColor" />
+                <div class="h-8 w-8 rounded-full flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#000000" viewBox="0 0 256 256"><path d="M200,168a32.06,32.06,0,0,0-31,24H72a32,32,0,0,1,0-64h96a40,40,0,0,0,0-80H72a8,8,0,0,0,0,16h96a24,24,0,0,1,0,48H72a48,48,0,0,0,0,96h97a32,32,0,1,0,31-40Zm0,48a16,16,0,1,1,16-16A16,16,0,0,1,200,216Z"></path></svg>
+                  <!-- <component :is="activity.icon" class="h-4 w-4" :class="activity.iconColor" /> -->
                 </div>
               </div>
               <div>
-                <p class="text-sm font-medium text-gray-900">{{ activity.title }}</p>
-                <p class="text-xs text-gray-500">{{ activity.time }}</p>
+                <p class="text-sm font-medium text-gray-900">{{ activity.action }}</p>
+                <p class="text-xs text-gray-500">{{ activity.description }}</p>
               </div>
             </div>
           </div>
-          <button class="mt-6 w-full py-2 text-sm text-violet-600 hover:text-violet-700 font-medium">
+          <NuxtLink to="/dashboard/audit-trail" class="mt-6 w-full py-2 text-sm text-violet-600 hover:text-violet-700 font-medium">
             View All Activity
-          </button>
+          </NuxtLink>
         </div>
       </div>
   
@@ -76,28 +78,110 @@
       <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-lg font-semibold text-gray-900">Recent Orders</h2>
-          <button class="text-sm text-violet-600 hover:text-violet-700 font-medium">
+          <NuxtLink to="/dashboard/orders" class="text-sm text-violet-600 hover:text-violet-700 font-medium">
             View All
-          </button>
+          </NuxtLink>
         </div>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead>
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Order Number
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Customer
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Items
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Total
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Payment
+                </th>
+                <!-- <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th> -->
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="(order, index) in recentOrders" :key="index" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ order.id }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.customer }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.product }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.date }}</td>
+              <tr v-for="(order, index) in orders" :key="index" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"> {{ order.orderNumber }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"> {{ formatDate(order.createdAt) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-8 w-8 bg-violet-100 rounded-full flex items-center justify-center">
+                      <span class="text-sm font-medium text-violet-700">{{ getInitials(order.customer.fullName) }}</span>
+                    </div>
+                    <div class="ml-3">
+                      <div class="text-sm font-medium text-gray-900">{{ order.customer.fullName }}</div>
+                      <div class="text-xs text-gray-500">{{ order.customer.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <div class="flex items-center">
+                    <span class="font-medium">{{ order.items.length }}</span>
+                    <span class="ml-1">item(s)</span>
+                    <div class="ml-2 flex -space-x-2">
+                      <div 
+                        v-for="(item, index) in order.items.slice(0, 3)" 
+                        :key="index" 
+                        class="h-6 w-6 rounded-full ring-2 ring-white overflow-hidden"
+                        :style="{ zIndex: 3 - index }"
+                      >
+                        <img 
+                          :src="item.product.images[0]" 
+                          :alt="item.product.name" 
+                          class="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div 
+                        v-if="order.items.length > 3" 
+                        class="h-6 w-6 rounded-full bg-gray-200 ring-2 ring-white flex items-center justify-center text-xs font-medium text-gray-500"
+                        style="z-index: 0"
+                      >
+                        +{{ order.items.length - 3 }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  ${{ order.total.toFixed(2) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors duration-200" 
+                    :class="{
+                      'bg-yellow-100 text-yellow-800': order.status === 'pending',
+                      'bg-blue-100 text-blue-800': order.status === 'processing',
+                      'bg-indigo-100 text-indigo-800': order.status === 'shipped',
+                      'bg-green-100 text-green-800': order.status === 'delivered',
+                      'bg-red-100 text-red-800': order.status === 'cancelled'
+                    }">
+                    {{ capitalizeFirstLetter(order.status) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors duration-200" 
+                    :class="{
+                      'bg-green-100 text-green-800': order.paymentStatus === 'paid',
+                      'bg-yellow-100 text-yellow-800': order.paymentStatus === 'pending',
+                      'bg-gray-100 text-gray-800': order.paymentStatus === 'refunded'
+                    }">
+                    {{ capitalizeFirstLetter(order.paymentStatus) }}
+                  </span>
+                </td>
+
+
+                <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.date }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${{ order.amount }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" 
@@ -108,7 +192,7 @@
                     }">
                     {{ order.status }}
                   </span>
-                </td>
+                </td> -->
               </tr>
             </tbody>
           </table>
@@ -123,8 +207,12 @@
     ShoppingCart, CreditCard, Users, Package, 
     TrendingUp, TrendingDown, DollarSign, Clock, Truck, CheckCircle
   } from 'lucide-vue-next'
+  import { useFetchAllAudits } from "@/composables/modules/audit/useFetchAuditLogs"
+    import { useFetchAllOrders } from "@/composables/modules/orders/useFetchAllOrders"
   
   const chartPeriod = ref('month')
+  const { auditsList, loading } = useFetchAllAudits()
+  const { orders, loading: fetchingOrders } =  useFetchAllOrders()
   
   // Stats data
   const stats = [
@@ -139,7 +227,7 @@
     },
     { 
       name: 'Total Orders', 
-      value: '142', 
+      value: Array.isArray(orders?.value) && orders?.value?.length, 
       trend: 'up', 
       trendValue: '8%', 
       icon: ShoppingCart, 
@@ -248,4 +336,31 @@
       status: 'Processing' 
     }
   ]
+
+    // Format date
+    const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date)
+  }
+  
+  // Get initials from name
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part.charAt(0))
+      .join('')
+      .toUpperCase()
+      .substring(0, 2)
+  }
+  
+  // Capitalize first letter
+  const capitalizeFirstLetter = (string: string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1)
+  }
   </script>

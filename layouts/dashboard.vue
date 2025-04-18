@@ -131,6 +131,7 @@ import { ref, computed, onMounted, onUnmounted, useRoute } from '#imports'
 import { 
   Menu, X, LogOut, Bell, Settings, ChevronDown,
   Home, ShoppingCart, Package, CreditCard, Link, FileText, 
+  ShipIcon, AudioWaveformIcon,
   Bell as BellIcon, FileText as InvoiceIcon, Package as InventoryIcon, Users
 } from 'lucide-vue-next'
 import { useUser } from '@/composables/auth/user'
@@ -162,8 +163,10 @@ const sidebarSections = [
       { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
       { name: 'Notifications', href: '/dashboard/notifications', icon: BellIcon },
       { name: 'Invoices', href: '/dashboard/invoices', icon: InvoiceIcon },
-      { name: 'Inventory', href: '/dashboard/inventory', icon: InventoryIcon },
+      { name: 'Inventory', href: '/dashboard/inventory', icon: ShipIcon },
+      { name: 'Shipping Tax', href: '/dashboard/shipping-tax', icon: InventoryIcon },
       { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
+      { name: 'Audit Trail', href: '/dashboard/audit-trail', icon: AudioWaveformIcon },
     ]
   }
 ]

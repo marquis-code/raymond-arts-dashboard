@@ -97,11 +97,11 @@
                   <div class="mt-4 space-y-4">
                     <div>
                       <label for="link-name" class="block text-sm font-medium text-gray-700">Link Name</label>
-                      <input type="text" id="link-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500" />
+                      <input type="text" id="link-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
                     </div>
                     <div>
                       <label for="link-product" class="block text-sm font-medium text-gray-700">Product</label>
-                      <select id="link-product" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+                      <select id="link-product" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
                         <option value="">Select a product</option>
                         <option value="1">Abstract Sunset - $350.00</option>
                         <option value="2">Urban Landscape - $125.00</option>
@@ -112,11 +112,11 @@
                     </div>
                     <div>
                       <label for="link-price" class="block text-sm font-medium text-gray-700">Price ($)</label>
-                      <input type="number" id="link-price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500" />
+                      <input type="number" id="link-price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
                     </div>
                     <div>
                       <label for="link-expiry" class="block text-sm font-medium text-gray-700">Expiry Date (Optional)</label>
-                      <input type="date" id="link-expiry" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500" />
+                      <input type="date" id="link-expiry" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
                     </div>
                   </div>
                 </div>

@@ -23,7 +23,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label for="type-filter" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-            <select id="type-filter" v-model="filters.type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="type-filter" v-model="filters.type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Types</option>
               <option value="order">Orders</option>
               <option value="payment">Payments</option>
@@ -33,7 +33,7 @@
           </div>
           <div>
             <label for="read-status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select id="read-status" v-model="filters.readStatus" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="read-status" v-model="filters.readStatus" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Status</option>
               <option value="read">Read</option>
               <option value="unread">Unread</option>
@@ -41,7 +41,7 @@
           </div>
           <div>
             <label for="date-range" class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-            <select id="date-range" v-model="filters.dateRange" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="date-range" v-model="filters.dateRange" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Time</option>
               <option value="today">Today</option>
               <option value="yesterday">Yesterday</option>

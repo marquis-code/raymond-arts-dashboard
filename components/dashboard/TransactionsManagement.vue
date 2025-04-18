@@ -28,7 +28,7 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label for="date-range" class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-            <select id="date-range" v-model="filters.dateRange" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="date-range" v-model="filters.dateRange" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Time</option>
               <option value="today">Today</option>
               <option value="yesterday">Yesterday</option>
@@ -39,7 +39,7 @@
           </div>
           <div>
             <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select id="status" v-model="filters.status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="status" v-model="filters.status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Status</option>
               <option value="completed">Completed</option>
               <option value="pending">Pending</option>
@@ -49,7 +49,7 @@
           </div>
           <div>
             <label for="payment-method" class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
-            <select id="payment-method" v-model="filters.paymentMethod" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="payment-method" v-model="filters.paymentMethod" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Methods</option>
               <option value="credit-card">Credit Card</option>
               <option value="paypal">PayPal</option>
@@ -64,14 +64,14 @@
                 type="number" 
                 v-model="filters.minAmount" 
                 placeholder="Min" 
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"
               />
               <span>-</span>
               <input 
                 type="number" 
                 v-model="filters.maxAmount" 
                 placeholder="Max" 
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"
               />
             </div>
           </div>

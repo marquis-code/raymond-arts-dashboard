@@ -28,7 +28,7 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select id="status-filter" v-model="filters.status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="status-filter" v-model="filters.status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
               <option value="processing">Processing</option>
@@ -39,7 +39,7 @@
           </div>
           <div>
             <label for="date-range" class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-            <select id="date-range" v-model="filters.dateRange" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="date-range" v-model="filters.dateRange" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Time</option>
               <option value="today">Today</option>
               <option value="yesterday">Yesterday</option>
@@ -50,7 +50,7 @@
           </div>
           <div>
             <label for="payment-status" class="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
-            <select id="payment-status" v-model="filters.paymentStatus" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+            <select id="payment-status" v-model="filters.paymentStatus" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
               <option value="all">All Payment Status</option>
               <option value="paid">Paid</option>
               <option value="unpaid">Unpaid</option>
@@ -64,14 +64,14 @@
                 type="number" 
                 v-model="filters.minAmount" 
                 placeholder="Min" 
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"
               />
               <span>-</span>
               <input 
                 type="number" 
                 v-model="filters.maxAmount" 
                 placeholder="Max" 
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"
               />
             </div>
           </div>
@@ -328,7 +328,7 @@
                   </h3>
                   <div class="mt-4">
                     <label for="order-status" class="block text-sm font-medium text-gray-700">Status</label>
-                    <select id="order-status" v-model="newStatus" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500">
+                    <select id="order-status" v-model="newStatus" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
                       <option value="Pending">Pending</option>
                       <option value="Processing">Processing</option>
                       <option value="Shipped">Shipped</option>
@@ -338,7 +338,7 @@
                   </div>
                   <div class="mt-4">
                     <label for="status-notes" class="block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                    <textarea id="status-notes" v-model="statusNotes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500"></textarea>
+                    <textarea id="status-notes" v-model="statusNotes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"></textarea>
                   </div>
                 </div>
               </div>
