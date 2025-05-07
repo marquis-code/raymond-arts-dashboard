@@ -11,5 +11,8 @@ export const payments_api = {
   
   $_handle_flutterwave_webhook(data: any) {
     return GATEWAY_ENDPOINT.post("/payments/webhook/flutterwave", data);
-  }
+  },
+  $_fetch_payments() {
+    return GATEWAY_ENDPOINT.get("/payments");
+  },
 };

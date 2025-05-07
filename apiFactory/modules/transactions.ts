@@ -5,8 +5,8 @@ export const transactions_api = {
     return GATEWAY_ENDPOINT.post("/transactions", data);
   },
   
-  $_fetch_all_transactions(pagination: any) {
-    return GATEWAY_ENDPOINT.get("/transactions", { params: pagination });
+  $_fetch_all_transactions() {
+    return GATEWAY_ENDPOINT.get("/transactions");
   },
   
   $_fetch_my_transactions(pagination: any) {
