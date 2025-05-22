@@ -42,28 +42,83 @@
         <!-- Sidebar Content -->
         <div class="flex-1 overflow-y-auto p-4">
           <nav class="space-y-1">
-            <div v-for="(section, index) in sidebarSections" :key="index" class="mb-6">
+            <div v-for="(section, sectionIndex) in sidebarSections" :key="sectionIndex" class="mb-6">
               <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                 {{ section.title }}
               </h3>
               <div class="space-y-1">
-                <NuxtLink 
-                  v-for="item in section.items" 
+                <!-- Regular menu items or dropdown parents -->
+                <div 
+                  v-for="(item, itemIndex) in section.items" 
                   :key="item.name"
-                  :to="item.href"
-                  class="group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors"
-                  :class="[
-                    $route.path === item.href 
-                      ? 'bg-violet-50 text-violet-700' 
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                  ]"
-                  @click="isSidebarOpen = false"
+                  class="group"
                 >
-                  <component :is="item.icon" class="mr-3 h-5 w-5 flex-shrink-0" :class="[
-                    $route.path === item.href ? 'text-violet-600' : 'text-gray-400 group-hover:text-gray-500'
-                  ]" />
-                  <span>{{ item.name }}</span>
-                </NuxtLink>
+                  <!-- If item has children, render as dropdown -->
+                  <div v-if="item.children && item.children.length > 0">
+                    <button 
+                      @click="toggleDropdown(sectionIndex, itemIndex)"
+                      class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors"
+                      :class="[
+                        isActiveParent(item) 
+                          ? 'bg-violet-50 text-violet-700' 
+                          : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      ]"
+                    >
+                      <div class="flex items-center">
+                        <component :is="item.icon" class="mr-3 h-5 w-5 flex-shrink-0" :class="[
+                          isActiveParent(item) ? 'text-violet-600' : 'text-gray-400 group-hover:text-gray-500'
+                        ]" />
+                        <span>{{ item.name }}</span>
+                      </div>
+                      <ChevronDown 
+                        class="h-4 w-4 transition-transform duration-200"
+                        :class="[
+                          expandedItems[sectionIndex]?.[itemIndex] ? 'transform rotate-180' : '',
+                          isActiveParent(item) ? 'text-violet-600' : 'text-gray-400'
+                        ]"
+                      />
+                    </button>
+                    
+                    <!-- Dropdown children -->
+                    <div 
+                      v-show="expandedItems[sectionIndex]?.[itemIndex]"
+                      class="mt-1 pl-10 space-y-1"
+                    >
+                      <NuxtLink 
+                        v-for="child in item.children" 
+                        :key="child.name"
+                        :to="child.href"
+                        class="block px-3 py-2 text-sm font-medium rounded-md transition-colors"
+                        :class="[
+                          $route.path === child.href 
+                            ? 'bg-violet-50 text-violet-700' 
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        ]"
+                        @click="isSidebarOpen = false"
+                      >
+                        {{ child.name }}
+                      </NuxtLink>
+                    </div>
+                  </div>
+                  
+                  <!-- Regular menu item without children -->
+                  <NuxtLink 
+                    v-else
+                    :to="item.href"
+                    class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors"
+                    :class="[
+                      $route.path === item.href 
+                        ? 'bg-violet-50 text-violet-700' 
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                    ]"
+                    @click="isSidebarOpen = false"
+                  >
+                    <component :is="item.icon" class="mr-3 h-5 w-5 flex-shrink-0" :class="[
+                      $route.path === item.href ? 'text-violet-600' : 'text-gray-400 group-hover:text-gray-500'
+                    ]" />
+                    <span>{{ item.name }}</span>
+                  </NuxtLink>
+                </div>
               </div>
             </div>
           </nav>
@@ -112,7 +167,7 @@
             >
               <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
               <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
-              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</a>
+              <a href="#" @click.prevent="logOut" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</a>
             </div>
           </div>
         </div>
@@ -127,15 +182,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, useRoute } from '#imports'
+import { ref, reactive, computed, onMounted, onUnmounted, useRoute, watch } from '#imports'
 import { 
   Menu, X, LogOut, Bell, Settings, ChevronDown,
   Home, ShoppingCart, Package, CreditCard, Link, FileText, 
-  ShipIcon, AudioWaveformIcon,
-  Bell as BellIcon, FileText as InvoiceIcon, Package as InventoryIcon, Users
+  ShipIcon, AudioWaveformIcon, BookOpen, Award, Users as UsersIcon,
+  Bell as BellIcon, FileText as InvoiceIcon, Package as InventoryIcon, Users, Star
 } from 'lucide-vue-next'
 import { useUser } from '@/composables/auth/user'
 import { logOut } from "@/composables/core/useLogout"
+
 const { user } = useUser()
 
 // Sidebar state
@@ -144,7 +200,10 @@ const isUserMenuOpen = ref(false)
 const userMenuContainer = ref<HTMLElement | null>(null)
 const route = useRoute()
 
-// Define sidebar sections and items
+// Track expanded dropdown items
+const expandedItems = reactive<Record<number, Record<number, boolean>>>({})
+
+// Define sidebar sections and items with nested structure
 const sidebarSections = [
   {
     title: 'Overview',
@@ -167,18 +226,72 @@ const sidebarSections = [
       { name: 'Shipping Tax', href: '/dashboard/shipping-tax', icon: InventoryIcon },
       { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
       { name: 'Audit Trail', href: '/dashboard/audit-trail', icon: AudioWaveformIcon },
-      { name: 'Course Management', href: '/dashboard/courses', icon: AudioWaveformIcon },
+      { 
+        name: 'Course Management', 
+        href: '/dashboard/courses', 
+        icon: BookOpen,
+        children: [
+          { name: 'All Courses', href: '/dashboard/courses' },
+          { name: 'Enrollments', href: '/dashboard/courses/enrollments' },
+          { name: 'Certificates', href: '/dashboard/courses/certificates' },
+          { name: 'Reviews', href: '/dashboard/courses/reviews' }
+        ]
+      },
     ]
   }
 ]
 
+// Toggle dropdown state
+const toggleDropdown = (sectionIndex: number, itemIndex: number) => {
+  if (!expandedItems[sectionIndex]) {
+    expandedItems[sectionIndex] = {}
+  }
+  
+  expandedItems[sectionIndex][itemIndex] = !expandedItems[sectionIndex][itemIndex]
+}
+
+// Check if a parent item should be highlighted (if it or any of its children are active)
+const isActiveParent = (item: any) => {
+  if (route.path === item.href) return true
+  
+  if (item.children) {
+    return item.children.some((child: any) => route.path === child.href)
+  }
+  
+  return false
+}
+
+// Auto-expand dropdown when a child route is active
+const autoExpandActiveDropdowns = () => {
+  sidebarSections.forEach((section, sectionIndex) => {
+    section.items.forEach((item, itemIndex) => {
+      if (item.children && isActiveParent(item)) {
+        if (!expandedItems[sectionIndex]) {
+          expandedItems[sectionIndex] = {}
+        }
+        expandedItems[sectionIndex][itemIndex] = true
+      }
+    })
+  })
+}
+
 // Compute current page title based on the route
 const currentPageTitle = computed(() => {
-  // Find the menu item that matches the current route
+  // Check all items including children
   for (const section of sidebarSections) {
     for (const item of section.items) {
+      // Check if the main item matches
       if (route.path === item.href) {
         return item.name
+      }
+      
+      // Check if any child item matches
+      if (item.children) {
+        for (const child of item.children) {
+          if (route.path === child.href) {
+            return child.name
+          }
+        }
       }
     }
   }
@@ -194,15 +307,18 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
+// Watch for route changes to update expanded state
+watch(() => route.path, () => {
+  autoExpandActiveDropdowns()
+})
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  autoExpandActiveDropdowns()
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-definePageMeta({
-    layout:'dashboard'
-})
 </script>

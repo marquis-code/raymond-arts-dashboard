@@ -17,7 +17,8 @@ export const useGetCourses = () => {
     error.value = null
     try {
       const response = await courses_api.$_get_all_courses(params)
-      courses.value = response.data.items || response.data
+      console.log(response, 'response hee')
+      courses.value = response.data.courses || response.data
       
       // Handle pagination if available in response
       if (response.data.meta) {
@@ -37,6 +38,10 @@ export const useGetCourses = () => {
       loading.value = false
     }
   }
+
+  onMounted(() => {
+    getCourses()
+  })
 
   return {
     loading,
