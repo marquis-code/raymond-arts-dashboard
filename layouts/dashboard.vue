@@ -167,6 +167,7 @@ const sidebarSections = [
       { name: 'Shipping Tax', href: '/dashboard/shipping-tax', icon: InventoryIcon },
       { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
       { name: 'Audit Trail', href: '/dashboard/audit-trail', icon: AudioWaveformIcon },
+      { name: 'Course Management', href: '/dashboard/courses', icon: AudioWaveformIcon },
     ]
   }
 ]
