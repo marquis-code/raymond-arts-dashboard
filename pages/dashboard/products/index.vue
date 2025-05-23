@@ -23,7 +23,7 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-          <select id="category" v-model="filters.category" class="w-full rounded-md border-gray-300 focus:border-violet-500 focus:ring-violet-500">
+          <select id="category" v-model="filters.category" class="w-full border p-2.5 text-sm rounded-md border-gray-300 focus:border-violet-500 focus:ring-violet-500">
             <option value="">All Categories</option>
             <option v-for="category in categories" :key="category._id" :value="category._id">
               {{ category.name }}
@@ -37,20 +37,20 @@
               type="number" 
               v-model="filters.minPrice" 
               placeholder="Min" 
-              class="w-full rounded-md border-gray-300 focus:border-violet-500 focus:ring-violet-500"
+              class="w-full rounded-md border-gray-300 border p-2.5 text-sm focus:border-violet-500 focus:ring-violet-500"
             />
             <span>-</span>
             <input 
               type="number" 
               v-model="filters.maxPrice" 
               placeholder="Max" 
-              class="w-full rounded-md border-gray-300 focus:border-violet-500 focus:ring-violet-500"
+              class="w-full rounded-md border-gray-300 border p-2.5 text-sm focus:border-violet-500 focus:ring-violet-500"
             />
           </div>
         </div>
         <div>
           <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Availability</label>
-          <select id="status" v-model="filters.isAvailable" class="w-full rounded-md border-gray-300 focus:border-violet-500 focus:ring-violet-500">
+          <select id="status" v-model="filters.isAvailable" class="w-full rounded-md border text-sm p-2.5 border-gray-300 focus:border-violet-500 focus:ring-violet-500">
             <option value="">All</option>
             <option :value="true">Available</option>
             <option :value="false">Not Available</option>
@@ -68,7 +68,30 @@
     </div>
 
     <!-- Products Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <!-- Empty state -->
+    <div v-if="filteredProducts.length === 0 && !loading" class="bg-white p-8 rounded-lg border border-gray-100 text-center">
+      <div class="flex justify-center">
+        <img src="https://res.cloudinary.com/marquis/image/upload/v1744598033/nest-cloudinary/empty-state.svg" alt="No products found" class="h-32 w-32 mb-4" />
+      </div>
+      <h3 class="mt-2 text-base font-medium text-gray-900">No artworks found</h3>
+      <p class="mt-1 text-sm text-gray-500">
+        Try adjusting your filters or add a new artwork to get started.
+      </p>
+      <div class="mt-6">
+        <NuxtLink to="/dashboard/products/create" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-all duration-300">
+          <Plus class="h-4 w-4 mr-2" />
+          Add Artwork
+        </NuxtLink>
+      </div>
+    </div>
+
+    <!-- <div v-else-if="loading && !filteredProducts?.length">Loading Products</div> -->
+    <div v-else-if="loading && !filteredProducts?.length" class="p-8 flex justify-center items-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-700"></div>
+      </div>
+
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="(product, index) in filteredProducts" :key="product.id || index" 
            class="product-card bg-white rounded-lg border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-xl transform hover:-translate-y-2">
         <div class="relative aspect-w-4 aspect-h-3 bg-gray-100 group cursor-pointer" @click="openImageGallery(product)">
@@ -153,7 +176,7 @@
             </div>
           </div>
           <div class="mt-3">
-            <p class="text-sm text-gray-600 line-clamp-2">{{ product.description }}</p>
+            <p v-html="product.description" class="text-sm text-gray-600 line-clamp-2"></p>
           </div>
           <div class="mt-4 flex flex-wrap gap-1">
             <span v-for="(tag, tagIndex) in product.tags" :key="tagIndex" 
@@ -192,23 +215,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Empty state -->
-    <div v-if="filteredProducts.length === 0" class="bg-white p-8 rounded-lg border border-gray-100 text-center">
-      <div class="flex justify-center">
-        <img src="https://res.cloudinary.com/marquis/image/upload/v1744598033/nest-cloudinary/empty-state.svg" alt="No products found" class="h-32 w-32 mb-4" />
-      </div>
-      <h3 class="mt-2 text-base font-medium text-gray-900">No artworks found</h3>
-      <p class="mt-1 text-sm text-gray-500">
-        Try adjusting your filters or add a new artwork to get started.
-      </p>
-      <div class="mt-6">
-        <NuxtLink to="/dashboard/products/create" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-all duration-300">
-          <Plus class="h-4 w-4 mr-2" />
-          Add Artwork
-        </NuxtLink>
       </div>
     </div>
 
@@ -377,7 +383,17 @@
                     
                     <div>
                       <h4 class="text-sm font-medium text-gray-900">Description</h4>
-                      <p class="mt-1 text-sm text-gray-600">{{ selectedProduct.description }}</p>
+                      <p v-html="selectedProduct.description" class="mt-1 text-sm text-gray-600"></p>
+                    </div>
+
+                    <!-- {{selectedProduct}} -->
+                    <div v-if="selectedProduct.sizes">
+                      <h4 class="text-sm font-medium text-gray-900">Sizes</h4>
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        <span v-for="(itm, tagIndex) in selectedProduct?.sizes" :key="tagIndex" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-50 text-violet-700 border border-violet-100">
+                          {{ itm?.size }} -  {{ itm?.price }}
+                        </span>
+                      </div>
                     </div>
                     
                     <div>
@@ -498,8 +514,73 @@
                         
                         <div>
                           <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                          <textarea id="description" v-model="editingProduct.description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"></textarea>
+                          <CoreQuillEditor 
+                            v-model="editingProduct.description"
+                            placeholder="Describe your artwork with rich formatting..."
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"
+                          />
+                          <!-- <textarea id="description" v-model="editingProduct.description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"></textarea> -->
                         </div>
+
+                                      <!-- Product Information -->
+              <div class="form-group">
+                <div class="flex items-center justify-between mb-3">
+                  <label class="form-label text-base font-semibold">Product Information</label>
+                  <!-- <Tooltip text="Detailed information about your artwork including materials, techniques, inspiration, and story">
+                    <InfoCircleIcon class="h-4 w-4 text-blue-400 hover:text-blue-600 transition-colors" />
+                  </Tooltip> -->
+                </div>
+                <div class="quill-wrapper">
+                  <CoreQuillEditor 
+                    v-model="editingProduct.productInfo" 
+                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"
+                    placeholder="Include details about materials, techniques, inspiration, dimensions, care instructions, and the story behind your artwork..."
+                  />
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  This content will be displayed as formatted HTML on the product page.
+                </p>
+              </div>
+
+
+              <div class="form-group">
+                <div class="flex items-center justify-between mb-3">
+                  <label class="form-label text-base font-semibold">Return & Refund Policy</label>
+                  <!-- <Tooltip text="Your return and refund policy for this artwork">
+                    <InfoCircleIcon class="h-4 w-4 text-blue-400 hover:text-blue-600 transition-colors" />
+                  </Tooltip> -->
+                </div>
+                <div class="quill-wrapper">
+                  <CoreQuillEditor 
+                    v-model="editingProduct.returnPolicy" 
+                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"
+                    placeholder="Specify your return timeframe, conditions, process, and any exceptions for this artwork..."
+                  />
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  This policy will be displayed as formatted HTML to customers.
+                </p>
+              </div>
+
+
+              <div class="form-group">
+                <div class="flex items-center justify-between mb-3">
+                  <label class="form-label text-base font-semibold">Shipping Information</label>
+                  <!-- <Tooltip text="Shipping details and delivery information">
+                    <InfoCircleIcon class="h-4 w-4 text-blue-400 hover:text-blue-600 transition-colors" />
+                  </Tooltip> -->
+                </div>
+                <div class="quill-wrapper">
+                  <CoreQuillEditor 
+                    v-model="editingProduct.shippingInfo" 
+                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"
+                    placeholder="Include shipping costs, delivery times, packaging details, and any special shipping requirements..."
+                  />
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  This information will be displayed as formatted HTML on the product page.
+                </p>
+              </div> 
                         
                         <div>
                           <label for="category" class="block text-sm font-medium text-gray-700">Category</label>

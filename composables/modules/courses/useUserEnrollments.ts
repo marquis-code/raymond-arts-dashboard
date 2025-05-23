@@ -11,6 +11,7 @@ export const useUserEnrollments = () => {
     error.value = null
     try {
       const response = await courses_api.$_get_user_enrollments()
+      console.log(res, 'enrollments')
       enrollments.value = response.data
       return response.data
     } catch (e: any) {
@@ -20,6 +21,10 @@ export const useUserEnrollments = () => {
       loading.value = false
     }
   }
+
+  onMounted(() => {
+    getUserEnrollments()
+  })
 
   return {
     loading,

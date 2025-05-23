@@ -6,7 +6,8 @@
         <button @click="isSidebarOpen = !isSidebarOpen" class="mr-2">
           <Menu class="h-6 w-6 text-gray-600" />
         </button>
-        <h1 class="text-xl font-bold text-gray-900">Artist Dashboard</h1>
+        <img src="@/assets/img/raymond-logo.png" class="h-12 w-12 lg:flex hidden" />
+        <!-- <h1 class="text-xl font-bold text-gray-900">Artist Dashboard</h1> -->
       </div>
       <div class="flex items-center">
         <button @click="isUserMenuOpen = !isUserMenuOpen" class="relative">
@@ -33,7 +34,8 @@
       <div class="relative flex h-full flex-col bg-white border-r">
         <!-- Sidebar Header -->
         <div class="flex items-center justify-between h-16 px-4 border-b">
-          <h2 class="text-xl font-bold text-gray-900">Artist Dashboard</h2>
+          <img src="@/assets/img/raymond-logo.png" class="h-12 w-12" />
+          <!-- <h2 class="text-xl font-bold text-gray-900">Artist Dashboard</h2> -->
           <button @click="isSidebarOpen = false" class="md:hidden">
             <X class="h-6 w-6 text-gray-600" />
           </button>
