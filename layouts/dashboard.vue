@@ -150,12 +150,12 @@
           <h1 class="text-2xl font-bold text-gray-900">{{ currentPageTitle }}</h1>
         </div>
         <div class="flex items-center space-x-4">
-          <button class="text-gray-500 hover:text-gray-700">
+          <button @click="router.push('/chat')" class="text-gray-500 hover:text-gray-700">
             <Bell class="h-5 w-5" />
           </button>
-          <button class="text-gray-500 hover:text-gray-700">
+          <!-- <button class="text-gray-500 hover:text-gray-700">
             <Settings class="h-5 w-5" />
-          </button>
+          </button> -->
           <div class="relative" ref="userMenuContainer">
             <button @click="isUserMenuOpen = !isUserMenuOpen" class="flex items-center">
               <img src="https://i.pravatar.cc/150?img=32" alt="User" class="h-8 w-8 rounded-full" />
@@ -189,7 +189,7 @@ import {
   Menu, X, LogOut, Bell, Settings, ChevronDown,
   Home, ShoppingCart, Package, CreditCard, Link, FileText, 
   ShipIcon, AudioWaveformIcon, BookOpen, Award, Users as UsersIcon,
-  Bell as BellIcon, FileText as InvoiceIcon, Package as InventoryIcon, Users, Star
+  Bell as BellIcon, FileText as InvoiceIcon, Package as InventoryIcon, Users, Star, MailQuestion
 } from 'lucide-vue-next'
 import { useUser } from '@/composables/auth/user'
 import { logOut } from "@/composables/core/useLogout"
@@ -204,6 +204,7 @@ const route = useRoute()
 
 // Track expanded dropdown items
 const expandedItems = reactive<Record<number, Record<number, boolean>>>({})
+const router = useRouter()
 
 // Define sidebar sections and items with nested structure
 const sidebarSections = [
@@ -228,6 +229,7 @@ const sidebarSections = [
       { name: 'Shipping Tax', href: '/dashboard/shipping-tax', icon: InventoryIcon },
       { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
       { name: 'Audit Trail', href: '/dashboard/audit-trail', icon: AudioWaveformIcon },
+      { name: 'Enquiries', href: '/dashboard/enquiries', icon: MailQuestion },
       { 
         name: 'Course Management', 
         href: '/dashboard/courses', 

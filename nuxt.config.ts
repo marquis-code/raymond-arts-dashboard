@@ -79,6 +79,10 @@ export default {
       // },
     },
   },
+  server: {
+    port: 3040,
+    host: '0.0.0.0' // This makes the server accessible from all network interfaces
+  },
 
 
   compatibilityDate: "2024-09-30"
