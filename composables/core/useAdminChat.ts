@@ -47,7 +47,7 @@ export const useAdminChat = () => {
 
     state.value.connectionStatus = "connecting"
 
-    socket.value = io(`${import.meta.VITE_BASE_URL}/chat` ||`${process.env.VITE_BASE_URL}/chat` , {
+    socket.value = io('https://raymond-arts-api.onrender.com/chat' , {
       transports: ["websocket"],
       autoConnect: true,
     })
