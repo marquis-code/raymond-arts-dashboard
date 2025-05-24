@@ -47,7 +47,7 @@ export const useAdminChat = () => {
 
     state.value.connectionStatus = "connecting"
 
-    socket.value = io("http://localhost:3000/chat", {
+    socket.value = io(`${import.meta.VITE_BASE_URL}/chat` ||`${process.env.VITE_BASE_URL}/chat` , {
       transports: ["websocket"],
       autoConnect: true,
     })
