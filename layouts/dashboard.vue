@@ -230,6 +230,7 @@ const sidebarSections = [
       { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
       { name: 'Audit Trail', href: '/dashboard/audit-trail', icon: AudioWaveformIcon },
       { name: 'Enquiries', href: '/dashboard/enquiries', icon: MailQuestion },
+      { name: 'Commission Requests', href: '/dashboard/commission-requests', icon: MailQuestion },
       { 
         name: 'Course Management', 
         href: '/dashboard/courses', 
