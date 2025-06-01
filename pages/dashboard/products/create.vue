@@ -435,7 +435,15 @@
                         <option value="medium">Medium</option>
                         <option value="large">Large</option>
                       </select>
-                      <div class="relative">
+                           <!-- Color Selection -->
+                      <select
+                        v-model="size.color"
+                        class="form-input text-sm w-28"
+                      >
+                        <option value="black">Black</option>
+                        <option value="white">White</option>
+                      </select>
+                      <div class="relative w-96">
                         <span
                           class="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"
                           >$</span
@@ -443,7 +451,7 @@
                         <input
                           type="number"
                           v-model="size.price"
-                          class="form-input text-sm w-24 pl-6"
+                          class="form-input text-sm w-32 pl-6"
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -980,6 +988,7 @@ const currentProduct = ref({
   sizes: [] as Array<{
     size: "small" | "basic" | "medium" | "large";
     price: number;
+    color: "black" | "white";
     width?: number;
     height?: number;
     length?: number;
@@ -1005,6 +1014,7 @@ const uploadedImageUrls = ref([] as string[]);
 const sizeVariants = ref([
   {
     size: "" as "small" | "basic" | "medium" | "large" | "",
+    color: "black" as "black" | "white",
     price: null as number | null,
     width: null as number | null,
     height: null as number | null,
@@ -1096,6 +1106,7 @@ const getPayloadPreview = () => {
       .filter((variant) => variant.size && variant.price !== null)
       .map((variant) => ({
         size: variant.size as "small" | "basic" | "medium" | "large",
+        color: variant.color as "black" | "white",
         price: variant.price!,
         width: variant.width || undefined,
         height: variant.height || undefined,
@@ -1202,6 +1213,7 @@ const removeImage = (index: number) => {
 const addSizeVariant = () => {
   sizeVariants.value.push({
     size: "" as "small" | "basic" | "medium" | "large" | "",
+    color: "" as "black" | "white",
     price: null,
     width: null,
     height: null,
@@ -1245,6 +1257,7 @@ const saveProduct = async () => {
       .filter((variant) => variant.size && variant.price !== null)
       .map((variant) => ({
         size: variant.size as "small" | "basic" | "medium" | "large",
+        color: variant.color as "black" | "whihte",
         price: variant.price!,
         width: variant.width || undefined,
         height: variant.height || undefined,
@@ -1343,6 +1356,7 @@ const resetForm = () => {
   sizeVariants.value = [
     {
       size: "" as "small" | "basic" | "medium" | "large" | "",
+      color: "" as "black" | "white",
       price: null,
       width: null,
       height: null,
@@ -1367,7 +1381,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Base Styles */
 .artwork-upload-container {
   @apply max-w-6xl mx-auto p-4;
 }

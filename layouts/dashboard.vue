@@ -186,7 +186,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, useRoute, watch } from '#imports'
 import { 
-  Menu, X, LogOut, Bell, Settings, ChevronDown,
+  Menu, X, Binoculars, LogOut, Bell, Settings, ChevronDown,
   Home, ShoppingCart, Package, CreditCard, Link, FileText, 
   ShipIcon, AudioWaveformIcon, BookOpen, Award, Users as UsersIcon,
   Bell as BellIcon, FileText as InvoiceIcon, Package as InventoryIcon, Users, Star, MailQuestion
@@ -230,6 +230,7 @@ const sidebarSections = [
       { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
       { name: 'Audit Trail', href: '/dashboard/audit-trail', icon: AudioWaveformIcon },
       { name: 'Enquiries', href: '/dashboard/enquiries', icon: MailQuestion },
+      { name: 'Promo Sales', href: '/dashboard/promosales', icon: Binoculars },
       { name: 'Commission Requests', href: '/dashboard/commission-requests', icon: MailQuestion },
       { 
         name: 'Course Management', 
