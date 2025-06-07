@@ -4,10 +4,10 @@ export const promosale_api = {
   $_create_promosale(data: any) {
     return GATEWAY_ENDPOINT.post("/promosales", data);
   },
-  $_fetch_promosales(data: any) {
+  $_fetch_promosales() {
     return GATEWAY_ENDPOINT.get("/promosales");
   },
-  $_fetch_currently_active_promosale(data: any) {
+  $_fetch_currently_active_promosale() {
     return GATEWAY_ENDPOINT.get("/promosales/active");
   },
   $_fetch_promosales_by_id(id: string) {

@@ -1,11 +1,11 @@
 import { inventory_api } from '@/apiFactory/modules/inventory'
 import { ref } from 'vue'
 
-export const useUpdateInventory = (productId: string, data: any) => {
+export const useUpdateInventory = () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const updateInventory = async () => {
+  const updateInventory = async (productId: string, data: any) => {
     loading.value = true
     error.value = null
     try {

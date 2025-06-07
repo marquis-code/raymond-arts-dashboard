@@ -17,7 +17,7 @@
           <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         </div>
         <button 
-          @click="isAddItemModalOpen = true" 
+          @click="openAddModal" 
           class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-all duration-200"
         >
           <Plus class="h-4 w-4 mr-2" />
@@ -34,7 +34,7 @@
           <select 
             id="category-filter" 
             v-model="filters.category" 
-            class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border"
           >
             <option value="all">All Categories</option>
             <option value="painting">Paintings</option>
@@ -49,7 +49,8 @@
           <select 
             id="stock-status" 
             v-model="filters.stockStatus" 
-            class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
+            @change="applyStockFilter"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border"
           >
             <option value="all">All Status</option>
             <option value="in-stock">In Stock</option>
@@ -62,7 +63,7 @@
           <select 
             id="sort-by" 
             v-model="filters.sortBy" 
-            class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border"
           >
             <option value="name-asc">Name (A-Z)</option>
             <option value="name-desc">Name (Z-A)</option>
@@ -79,14 +80,14 @@
               type="number" 
               v-model="filters.minPrice" 
               placeholder="Min" 
-              class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
+              class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border"
             />
             <span>-</span>
             <input 
               type="number" 
               v-model="filters.maxPrice" 
               placeholder="Max" 
-              class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
+              class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border"
             />
           </div>
         </div>
@@ -109,14 +110,26 @@
 
     <!-- Inventory Table -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
-      <div v-if="loading" class="p-8 flex justify-center items-center">
+      <!-- Loading State -->
+      <div v-if="loading || fetchingLowstock || fetchingOutOfStock" class="p-8 flex justify-center items-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-700"></div>
       </div>
+      
+      <!-- Empty State -->
       <div v-else-if="!filteredInventory.length" class="p-8 text-center text-gray-500">
         <PackageX class="h-12 w-12 mx-auto mb-4 text-gray-400" />
         <p class="text-lg font-medium">No inventory items found</p>
         <p class="mt-1">Try adjusting your filters or add new inventory items</p>
+        <button 
+          @click="openAddModal"
+          class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-all duration-200"
+        >
+          <Plus class="h-4 w-4 mr-2" />
+          Add First Item
+        </button>
       </div>
+      
+      <!-- Table Content -->
       <div v-else class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
@@ -151,27 +164,27 @@
                 <div class="flex items-center">
                   <div class="h-10 w-10 flex-shrink-0">
                     <img 
-                      :src="item.product.images[0]" 
-                      :alt="item.product.name" 
+                      :src="item.product?.images?.[0] || '/placeholder.svg?height=40&width=40'" 
+                      :alt="item.product?.name || 'Product'" 
                       class="h-10 w-10 rounded-md object-cover transition-transform duration-200 hover:scale-110" 
                     />
                   </div>
                   <div class="ml-4">
-                    <div class="text-sm font-medium text-gray-900">{{ item.product.name }}</div>
-                    <div class="text-xs text-gray-500">ID: {{ item.product._id.substring(0, 8) }}</div>
+                    <div class="text-sm font-medium text-gray-900">{{ item.product?.name || 'Unknown Product' }}</div>
+                    <div class="text-xs text-gray-500">ID: {{ item._id?.substring(0, 8) || 'N/A' }}</div>
                   </div>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 <div class="flex items-center">
-                  <span>${{ item.product.price.toFixed(2) }}</span>
-                  <span v-if="item.product.discountPercentage > 0" class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                  <span>${{ (item.product?.price || 0).toFixed(2) }}</span>
+                  <span v-if="item.product?.discountPercentage > 0" class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                     {{ item.product.discountPercentage }}% OFF
                   </span>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ item.quantity }}
+                {{ item.quantity || 0 }}
                 <span v-if="item.lowStockThreshold" class="text-xs text-gray-400 ml-1">
                   (Threshold: {{ item.lowStockThreshold }})
                 </span>
@@ -330,7 +343,8 @@
                         type="text" 
                         id="item-name" 
                         v-model="currentItem.product.name" 
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border" 
+                        required
                       />
                     </div>
                     <div>
@@ -340,7 +354,9 @@
                         id="item-price" 
                         v-model="currentItem.product.price" 
                         step="0.01"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]" 
+                        min="0"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border" 
+                        required
                       />
                     </div>
                     <div>
@@ -351,7 +367,7 @@
                         v-model="currentItem.product.discountPercentage" 
                         min="0"
                         max="100"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border" 
                       />
                     </div>
                     <div>
@@ -361,7 +377,8 @@
                         id="item-stock" 
                         v-model="currentItem.quantity" 
                         min="0"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border" 
+                        required
                       />
                     </div>
                     <div>
@@ -371,12 +388,14 @@
                         id="item-threshold" 
                         v-model="currentItem.lowStockThreshold" 
                         min="0"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border" 
                       />
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
-                      <div class="grid grid-cols-3 gap-2">
+                      
+                      <!-- Existing Images -->
+                      <div v-if="currentItem.product.images.length > 0" class="grid grid-cols-3 gap-2 mb-2">
                         <div 
                           v-for="(image, index) in currentItem.product.images" 
                           :key="index"
@@ -391,13 +410,45 @@
                             <X class="h-3 w-3" />
                           </button>
                         </div>
+                      </div>
+
+                      <!-- New Image Previews -->
+                      <div v-if="newImagePreviews.length > 0" class="grid grid-cols-3 gap-2 mb-2">
                         <div 
-                          v-if="currentItem.product.images.length < 3" 
-                          class="h-20 bg-gray-100 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors duration-200"
-                          @click="addImage"
+                          v-for="(preview, index) in newImagePreviews" 
+                          :key="`preview-${index}`"
+                          class="relative h-20 bg-gray-100 rounded-md overflow-hidden group"
                         >
-                          <Plus class="h-6 w-6 text-gray-400" />
+                          <img :src="preview" alt="New image preview" class="h-full w-full object-cover" />
+                          <button 
+                            @click="removeNewImage(index)" 
+                            class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            title="Remove image"
+                          >
+                            <X class="h-3 w-3" />
+                          </button>
                         </div>
+                      </div>
+                      
+                      <!-- Upload Button -->
+                      <div class="flex items-center justify-center w-full">
+                        <label for="image-upload" class="flex flex-col items-center justify-center w-full h-20 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
+                          <div class="flex flex-col items-center justify-center pt-2 pb-2">
+                            <Plus class="w-6 h-6 mb-1 text-gray-400" />
+                            <p class="text-xs text-gray-500">
+                              {{ uploadingSingle || uploadingBatch ? 'Uploading...' : 'Add Images' }}
+                            </p>
+                          </div>
+                          <input 
+                            id="image-upload" 
+                            type="file" 
+                            class="hidden" 
+                            multiple 
+                            accept="image/*"
+                            @change="handleImageUpload"
+                            :disabled="uploadingSingle || uploadingBatch"
+                          />
+                        </label>
                       </div>
                     </div>
                   </div>
@@ -407,10 +458,10 @@
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
               <button 
                 @click="saveInventoryItem" 
-                :disabled="updating"
+                :disabled="creating || updatinginventory || !isFormValid"
                 class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-violet-600 text-base font-medium text-white hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span v-if="updating" class="mr-2">
+                <span v-if="creating || updatinginventory" class="mr-2">
                   <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -454,7 +505,7 @@
                         id="current-stock" 
                         :value="currentItem.quantity" 
                         disabled 
-                        class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm" 
+                        class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm p-3" 
                       />
                     </div>
                     <div>
@@ -462,7 +513,7 @@
                       <select 
                         id="adjustment-type" 
                         v-model="stockAdjustment.type" 
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border"
                       >
                         <option value="ADD">Add Stock</option>
                         <option value="REMOVE">Remove Stock</option>
@@ -476,7 +527,8 @@
                         id="adjustment-quantity" 
                         v-model="stockAdjustment.quantity" 
                         min="0" 
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border" 
+                        required
                       />
                     </div>
                     <div>
@@ -485,7 +537,7 @@
                         id="adjustment-notes" 
                         v-model="stockAdjustment.notes" 
                         rows="2" 
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border"
                       ></textarea>
                     </div>
                   </div>
@@ -495,10 +547,10 @@
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
               <button 
                 @click="saveStockAdjustment" 
-                :disabled="updating"
+                :disabled="updatinginventory || !stockAdjustment.quantity"
                 class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-violet-600 text-base font-medium text-white hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span v-if="updating" class="mr-2">
+                <span v-if="updatinginventory" class="mr-2">
                   <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -536,7 +588,7 @@
                     Stock History for {{ currentItem.product?.name }}
                   </h3>
                   <div class="mt-4">
-                    <div v-if="currentItem.history.length" class="flow-root">
+                    <div v-if="currentItem.history && currentItem.history.length > 0" class="flow-root">
                       <ul role="list" class="-mb-8">
                         <li v-for="(event, eventIdx) in currentItem.history" :key="eventIdx">
                           <div class="relative pb-8">
@@ -576,9 +628,11 @@
                         </li>
                       </ul>
                     </div>
-                    <div v-else class="flex justify-center items-center text-sm">
-                    <h1 class="text-sm">No Stock History Found</h1>
-                  </div>
+                    <div v-else class="flex flex-col items-center justify-center py-8 text-gray-500">
+                      <ClipboardList class="h-12 w-12 mb-4 text-gray-400" />
+                      <h3 class="text-sm font-medium">No Stock History Found</h3>
+                      <p class="text-xs mt-1">Stock changes will appear here</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -626,10 +680,10 @@
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
               <button 
                 @click="confirmDelete" 
-                :disabled="updating"
+                :disabled="updatinginventory"
                 class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span v-if="updating" class="mr-2">
+                <span v-if="updatinginventory" class="mr-2">
                   <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -655,12 +709,28 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { 
-  Search, Plus, Edit, Trash2, RefreshCw, Image, X,
+  Search, Plus, Edit, Trash2, RefreshCw, X,
   ChevronLeft, ChevronRight, History, ClipboardList,
   PlusCircle, MinusCircle, Settings, AlertTriangle, PackageX
 } from 'lucide-vue-next'
+
+// Composables
+import { useBatchUploadFile } from '@/composables/core/useBatchUploads'
+import { useSingleUploadFile } from '@/composables/core/useSingleUpload'
 import { useFetchAllInventory } from "@/composables/modules/inventory/useFetchAllInventory"
-const {  inventory, loading } = useFetchAllInventory()
+import { useCreateInventory } from "@/composables/modules/inventory/useCreateInventory"
+import { useFetchLowStock } from "@/composables/modules/inventory/useFetchLowStock"
+import { useUpdateInventory } from "@/composables/modules/inventory/useUpdateInventory"
+import { useFetchOutOfStock } from "@/composables/modules/inventory/useFetchOutOfStock"
+
+// Initialize composables
+const { inventory, loading, fetchAllInventory } = useFetchAllInventory()
+const { updateInventory, loading: updatinginventory } = useUpdateInventory()
+const { lowStockItems, loading: fetchingLowstock, fetchLowStock } = useFetchLowStock()
+const { outOfStockItems, loading: fetchingOutOfStock, fetchOutOfStock } = useFetchOutOfStock()
+const { createInventory, loading: creating } = useCreateInventory()
+const { batchUploadFile, loading: uploadingBatch, uploadResponse: batchUploadResponse } = useBatchUploadFile()
+const { singleUploadFile, loading: uploadingSingle, uploadResponse: singleUploadResponse } = useSingleUploadFile()
 
 // Types
 interface Product {
@@ -695,11 +765,6 @@ interface InventoryItem {
 }
 
 // State
-// const loading = ref(true)
-const updating = ref(false)
-// const inventory = ref<InventoryItem[]>([])
-
-// Search and filters
 const searchQuery = ref('')
 const filters = ref({
   category: 'all',
@@ -717,8 +782,13 @@ const isHistoryModalOpen = ref(false)
 const isDeleteModalOpen = ref(false)
 
 // Pagination
-const itemsPerPage = ref(5)
+const itemsPerPage = ref(10)
 const currentPage = ref(1)
+
+// Image upload state
+const newImagePreviews = ref<string[]>([])
+const newImageFiles = ref<File[]>([])
+const uploadedImageUrls = ref<string[]>([])
 
 // Current item being edited or created
 const currentItem = ref<InventoryItem>({
@@ -748,30 +818,23 @@ const stockAdjustment = ref({
   quantity: 1,
   notes: ''
 })
-// Filtered and sorted inventory
+
+// Current inventory data based on filters
+const currentInventoryData = ref<InventoryItem[]>([])
+
+// Computed properties
 const filteredInventory = computed(() => {
-  let result = inventory.value.filter(item => {
+  let result = currentInventoryData.value.filter(item => {
     // Search query
-    if (searchQuery.value && !item.product.name.toLowerCase().includes(searchQuery.value.toLowerCase())) {
-      return false
-    }
-    
-    // Stock status filter
-    if (filters.value.stockStatus === 'in-stock' && (item.isLowStock || item.isOutOfStock)) {
-      return false
-    }
-    if (filters.value.stockStatus === 'low-stock' && (!item.isLowStock || item.isOutOfStock)) {
-      return false
-    }
-    if (filters.value.stockStatus === 'out-of-stock' && !item.isOutOfStock) {
+    if (searchQuery.value && !item.product?.name?.toLowerCase().includes(searchQuery.value.toLowerCase())) {
       return false
     }
     
     // Price range filter
-    if (filters.value.minPrice !== null && item.product.price < filters.value.minPrice) {
+    if (filters.value.minPrice !== null && (item.product?.price || 0) < filters.value.minPrice) {
       return false
     }
-    if (filters.value.maxPrice !== null && item.product.price > filters.value.maxPrice) {
+    if (filters.value.maxPrice !== null && (item.product?.price || 0) > filters.value.maxPrice) {
       return false
     }
     
@@ -781,26 +844,33 @@ const filteredInventory = computed(() => {
   // Sort the results
   switch (filters.value.sortBy) {
     case 'name-asc':
-      result.sort((a, b) => a.product.name.localeCompare(b.product.name))
+      result.sort((a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''))
       break
     case 'name-desc':
-      result.sort((a, b) => b.product.name.localeCompare(a.product.name))
+      result.sort((a, b) => (b.product?.name || '').localeCompare(a.product?.name || ''))
       break
     case 'stock-asc':
-      result.sort((a, b) => a.quantity - b.quantity)
+      result.sort((a, b) => (a.quantity || 0) - (b.quantity || 0))
       break
     case 'stock-desc':
-      result.sort((a, b) => b.quantity - a.quantity)
+      result.sort((a, b) => (b.quantity || 0) - (a.quantity || 0))
       break
     case 'price-asc':
-      result.sort((a, b) => a.product.price - b.product.price)
+      result.sort((a, b) => (a.product?.price || 0) - (b.product?.price || 0))
       break
     case 'price-desc':
-      result.sort((a, b) => b.product.price - a.product.price)
+      result.sort((a, b) => (b.product?.price || 0) - (a.product?.price || 0))
       break
   }
   
   return result
+})
+
+const isFormValid = computed(() => {
+  return currentItem.value.product.name && 
+         currentItem.value.product.price >= 0 && 
+         currentItem.value.quantity >= 0 &&
+         (currentItem.value.product.images.length > 0 || uploadedImageUrls.value.length > 0)
 })
 
 // Pagination
@@ -838,6 +908,59 @@ const displayedPages = computed(() => {
   return [1, '...', currentPage.value - 1, currentPage.value, currentPage.value + 1, '...', totalPages.value]
 })
 
+// Methods
+const loadInventoryData = () => {
+  switch (filters.value.stockStatus) {
+    case 'low-stock':
+      currentInventoryData.value = lowStockItems.value
+      break
+    case 'out-of-stock':
+      currentInventoryData.value = outOfStockItems.value
+      break
+    case 'in-stock':
+      currentInventoryData.value = inventory.value.filter(item => !item.isLowStock && !item.isOutOfStock)
+      break
+    default:
+      currentInventoryData.value = inventory.value
+  }
+}
+
+const applyStockFilter = async () => {
+  currentPage.value = 1
+  
+  switch (filters.value.stockStatus) {
+    case 'low-stock':
+      if (lowStockItems.value.length === 0) {
+        await fetchLowStock()
+      }
+      break
+    case 'out-of-stock':
+      if (outOfStockItems.value.length === 0) {
+        await fetchOutOfStock()
+      }
+      break
+  }
+  
+  loadInventoryData()
+}
+
+const resetFilters = () => {
+  filters.value = {
+    category: 'all',
+    stockStatus: 'all',
+    sortBy: 'name-asc',
+    minPrice: null,
+    maxPrice: null
+  }
+  searchQuery.value = ''
+  loadInventoryData()
+}
+
+const applyFilters = () => {
+  currentPage.value = 1
+  loadInventoryData()
+}
+
 // Pagination functions
 const prevPage = () => {
   if (currentPage.value > 1) {
@@ -855,31 +978,9 @@ const goToPage = (page: number) => {
   currentPage.value = page
 }
 
-// Filter functions
-const resetFilters = () => {
-  filters.value = {
-    category: 'all',
-    stockStatus: 'all',
-    sortBy: 'name-asc',
-    minPrice: null,
-    maxPrice: null
-  }
-  searchQuery.value = ''
-}
-
-const applyFilters = () => {
-  // Filters are already applied via the computed property
-  // Reset to first page when filters change
-  currentPage.value = 1
-}
-
-// Watch for filter changes to reset pagination
-watch([filters, searchQuery], () => {
-  currentPage.value = 1
-})
-
 // Format date
 const formatDate = (dateString: string) => {
+  if (!dateString) return 'N/A'
   const date = new Date(dateString)
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -890,176 +991,62 @@ const formatDate = (dateString: string) => {
   }).format(date)
 }
 
-// Inventory item actions
-const editInventoryItem = (item: InventoryItem) => {
-  currentItem.value = JSON.parse(JSON.stringify(item)) // Deep copy
-  isEditItemModalOpen.value = true
-}
-
-const deleteInventoryItem = (item: InventoryItem) => {
-  currentItem.value = JSON.parse(JSON.stringify(item)) // Deep copy
-  isDeleteModalOpen.value = true
-}
-
-const confirmDelete = async () => {
-  updating.value = true
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
+// Image upload handling
+const handleImageUpload = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (input.files && input.files.length > 0) {
+    const files: File[] = []
     
-    // Remove from local state
-    inventory.value = inventory.value.filter(i => i._id !== currentItem.value._id)
-    
-    isDeleteModalOpen.value = false
-    updating.value = false
-  } catch (error) {
-    console.error('Error deleting item:', error)
-    updating.value = false
-  }
-}
-
-// View history
-const viewHistory = (item: InventoryItem) => {
-  currentItem.value = JSON.parse(JSON.stringify(item)) // Deep copy
-  isHistoryModalOpen.value = true
-}
-
-// Adjust stock
-const adjustStock = (item: InventoryItem) => {
-  currentItem.value = JSON.parse(JSON.stringify(item)) // Deep copy
-  stockAdjustment.value = {
-    type: 'ADD',
-    quantity: 1,
-    notes: ''
-  }
-  isAdjustStockModalOpen.value = true
-}
-
-const saveStockAdjustment = async () => {
-  updating.value = true
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    const index = inventory.value.findIndex(i => i._id === currentItem.value._id)
-    if (index !== -1) {
-      let newQuantity = currentItem.value.quantity
+    // Process files for preview
+    for (let i = 0; i < input.files.length; i++) {
+      const file = input.files[i]
+      newImageFiles.value.push(file)
+      files.push(file)
       
-      if (stockAdjustment.value.type === 'ADD') {
-        newQuantity += stockAdjustment.value.quantity
-      } else if (stockAdjustment.value.type === 'REMOVE') {
-        newQuantity = Math.max(0, newQuantity - stockAdjustment.value.quantity)
-      } else if (stockAdjustment.value.type === 'SET') {
-        newQuantity = stockAdjustment.value.quantity
+      // Create preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        if (e.target && e.target.result) {
+          newImagePreviews.value.push(e.target.result as string)
+        }
       }
-      
-      // Update the item
-      const updatedItem = { ...inventory.value[index] }
-      updatedItem.quantity = newQuantity
-      updatedItem.isOutOfStock = newQuantity === 0
-      updatedItem.isLowStock = newQuantity > 0 && newQuantity <= updatedItem.lowStockThreshold
-      updatedItem.inStock = newQuantity > 0
-      
-      // Add to history
-      const historyEvent: HistoryEvent = {
-        date: new Date().toISOString(),
-        action: stockAdjustment.value.type,
-        quantity: stockAdjustment.value.quantity,
-        notes: stockAdjustment.value.notes || 'Manual adjustment',
-        userId: 'current-user-id' // In a real app, get this from auth
-      }
-      
-      updatedItem.history = [historyEvent, ...updatedItem.history]
-      updatedItem.updatedAt = new Date().toISOString()
-      
-      inventory.value[index] = updatedItem
+      reader.readAsDataURL(file)
     }
     
-    isAdjustStockModalOpen.value = false
-    updating.value = false
-  } catch (error) {
-    console.error('Error adjusting stock:', error)
-    updating.value = false
-  }
-}
-
-// Add/Edit inventory item
-const addImage = () => {
-  // In a real app, you would open a file picker or show a modal to select an image
-  // For this example, we'll add a placeholder image
-  if (currentItem.value.product.images.length < 3) {
-    const randomId = Math.floor(Math.random() * 1000)
-    currentItem.value.product.images.push(`https://picsum.photos/seed/${randomId}/300/300`)
+    // Upload files
+    try {
+      if (files.length === 1) {
+        await singleUploadFile(files[0])
+      } else if (files.length > 1) {
+        const formData = new FormData()
+        files.forEach(file => {
+          formData.append('files', file)
+        })
+        await batchUploadFile(formData)
+      }
+    } catch (error) {
+      console.error('Error uploading files:', error)
+      // Handle error appropriately
+    }
+    
+    // Reset input
+    if (input) input.value = ''
   }
 }
 
 const removeImage = (index: number) => {
-  currentItem.value.product.images.splice(index, 1)
-}
-
-const saveInventoryItem = async () => {
-  updating.value = true
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    if (isEditItemModalOpen.value) {
-      // Update existing item
-      const index = inventory.value.findIndex(i => i._id === currentItem.value._id)
-      if (index !== -1) {
-        // Update the item with the edited values
-        inventory.value[index] = {
-          ...currentItem.value,
-          updatedAt: new Date().toISOString()
-        }
-      }
-    } else {
-      // Add new item
-      const newItem: InventoryItem = {
-        _id: `new-${Date.now()}`,
-        product: {
-          _id: `product-${Date.now()}`,
-          name: currentItem.value.product.name,
-          price: currentItem.value.product.price,
-          images: currentItem.value.product.images.length > 0 
-            ? currentItem.value.product.images 
-            : [`https://picsum.photos/seed/${Date.now()}/300/300`],
-          discountPercentage: currentItem.value.product.discountPercentage,
-          id: `product-${Date.now()}`
-        },
-        quantity: currentItem.value.quantity,
-        lowStockThreshold: currentItem.value.lowStockThreshold,
-        isLowStock: currentItem.value.quantity > 0 && currentItem.value.quantity <= currentItem.value.lowStockThreshold,
-        isOutOfStock: currentItem.value.quantity === 0,
-        history: [
-          {
-            date: new Date().toISOString(),
-            action: 'ADD',
-            quantity: currentItem.value.quantity,
-            notes: 'Initial inventory',
-            userId: 'current-user-id' // In a real app, get this from auth
-          }
-        ],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        inStock: currentItem.value.quantity > 0,
-        id: `new-${Date.now()}`
-      }
-      
-      inventory.value.unshift(newItem)
-    }
-    
-    closeItemModal()
-    updating.value = false
-  } catch (error) {
-    console.error('Error saving item:', error)
-    updating.value = false
+  if (currentItem.value.product.images) {
+    currentItem.value.product.images.splice(index, 1)
   }
 }
 
-const closeItemModal = () => {
-  isAddItemModalOpen.value = false
-  isEditItemModalOpen.value = false
+const removeNewImage = (index: number) => {
+  newImagePreviews.value.splice(index, 1)
+  newImageFiles.value.splice(index, 1)
+}
+
+// Inventory item actions
+const openAddModal = () => {
   currentItem.value = {
     _id: '',
     product: {
@@ -1080,13 +1067,153 @@ const closeItemModal = () => {
     inStock: true,
     id: ''
   }
+  clearImageState()
+  isAddItemModalOpen.value = true
 }
 
-// // Lifecycle hooks
-// onMounted(() => {
-//   fetchInventory()
-// })
+const editInventoryItem = (item: InventoryItem) => {
+  currentItem.value = JSON.parse(JSON.stringify(item))
+  clearImageState()
+  isEditItemModalOpen.value = true
+}
 
+const deleteInventoryItem = (item: InventoryItem) => {
+  currentItem.value = JSON.parse(JSON.stringify(item))
+  isDeleteModalOpen.value = true
+}
+
+const confirmDelete = async () => {
+  try {
+    // In a real implementation, you would call a delete API here
+    // For now, we'll just remove from local state
+    const index = inventory.value.findIndex(i => i._id === currentItem.value._id)
+    if (index !== -1) {
+      inventory.value.splice(index, 1)
+    }
+    
+    isDeleteModalOpen.value = false
+    loadInventoryData()
+  } catch (error) {
+    console.error('Error deleting item:', error)
+  }
+}
+
+const viewHistory = (item: InventoryItem) => {
+  currentItem.value = JSON.parse(JSON.stringify(item))
+  isHistoryModalOpen.value = true
+}
+
+const adjustStock = (item: InventoryItem) => {
+  currentItem.value = JSON.parse(JSON.stringify(item))
+  stockAdjustment.value = {
+    type: 'ADD',
+    quantity: 1,
+    notes: ''
+  }
+  isAdjustStockModalOpen.value = true
+}
+
+const saveStockAdjustment = async () => {
+  try {
+    let newQuantity = currentItem.value.quantity
+    
+    if (stockAdjustment.value.type === 'ADD') {
+      newQuantity += stockAdjustment.value.quantity
+    } else if (stockAdjustment.value.type === 'REMOVE') {
+      newQuantity = Math.max(0, newQuantity - stockAdjustment.value.quantity)
+    } else if (stockAdjustment.value.type === 'SET') {
+      newQuantity = stockAdjustment.value.quantity
+    }
+    
+    const updateData = {
+      quantity: newQuantity,
+      action: stockAdjustment.value.type,
+      notes: stockAdjustment.value.notes || 'Manual adjustment'
+    }
+    
+    await updateInventory(currentItem.value._id, updateData)
+    
+    // Refresh inventory data
+    await fetchAllInventory()
+    loadInventoryData()
+    
+    isAdjustStockModalOpen.value = false
+  } catch (error) {
+    console.error('Error adjusting stock:', error)
+  }
+}
+
+const saveInventoryItem = async () => {
+  try {
+    // Combine existing images with newly uploaded ones
+    const allImages = [...currentItem.value.product.images, ...uploadedImageUrls.value]
+    
+    const inventoryData = {
+      product: {
+        ...currentItem.value.product,
+        images: allImages
+      },
+      quantity: currentItem.value.quantity,
+      lowStockThreshold: currentItem.value.lowStockThreshold
+    }
+    
+    if (isEditItemModalOpen.value) {
+      await updateInventory(currentItem?.value?.product?.id, inventoryData)
+    } else {
+      await createInventory(inventoryData)
+    }
+    
+    // Refresh inventory data
+    await fetchAllInventory()
+    loadInventoryData()
+    
+    closeItemModal()
+  } catch (error) {
+    console.error('Error saving item:', error)
+  }
+}
+
+const closeItemModal = () => {
+  isAddItemModalOpen.value = false
+  isEditItemModalOpen.value = false
+  clearImageState()
+}
+
+const clearImageState = () => {
+  newImagePreviews.value = []
+  newImageFiles.value = []
+  uploadedImageUrls.value = []
+}
+
+// Watch for upload responses
+watch(() => singleUploadResponse.value, (newValue) => {
+  if (newValue && newValue.url) {
+    uploadedImageUrls.value.push(newValue.url)
+  }
+})
+
+watch(() => batchUploadResponse.value, (newValue) => {
+  if (newValue && Array.isArray(newValue)) {
+    const urls = newValue.map(response => response.url).filter(Boolean)
+    uploadedImageUrls.value.push(...urls)
+  }
+})
+
+// Watch for filter changes to reset pagination
+watch([filters, searchQuery], () => {
+  currentPage.value = 1
+})
+
+// Watch for stock status filter changes
+watch(() => filters.value.stockStatus, () => {
+  applyStockFilter()
+})
+
+// Lifecycle hooks
+onMounted(async () => {
+  await fetchAllInventory()
+  loadInventoryData()
+})
 
 definePageMeta({
   layout: "dashboard"
@@ -1150,4 +1277,3 @@ tr {
   background: #9ca3af;
 }
 </style>
-

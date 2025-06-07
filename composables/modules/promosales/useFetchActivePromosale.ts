@@ -10,9 +10,10 @@ export const useFetchActivePromosale = () => {
       loading.value = true
       error.value = null
       try {
-        const response = await promosale_api.$_fetch_currently_active_promosale({})
-        activePromosale.value = response.data.data
-        return response.data.data
+        const response = await promosale_api.$_fetch_currently_active_promosale()
+        console.log(response, 'active')
+        activePromosale.value = response.data
+        return response.data
       } catch (e: any) {
         error.value = e.response?.data?.message || 'Failed to fetch active promosale'
         throw error.value
