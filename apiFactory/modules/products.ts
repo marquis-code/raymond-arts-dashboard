@@ -40,9 +40,9 @@ export const product_api = {
   $_create_product(data: CreateParoductDto | any) {
     return GATEWAY_ENDPOINT.post("/products", data);
   },
-  $_fetch_products() {
+  $_fetch_products(metadata: { page: 1, limit: 10000000 }) {
     // return GATEWAY_ENDPOINT.get(`/products?page=${metadata.page}&limit=${metadata.limit}&sort=${metadata.sort}&order=${metadata.order}&search=${metadata.search}`);
-    return GATEWAY_ENDPOINT.get('/products');
+    return GATEWAY_ENDPOINT.get(`/products?page=1&limit=10000000`);
   },
   $_fetch_featured_products(metadata: { limit: number }) {
     return GATEWAY_ENDPOINT.get(`/products/featured?limit=${metadata.limit}`);

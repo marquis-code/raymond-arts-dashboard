@@ -13,9 +13,9 @@ export const promosale_api = {
   $_fetch_promosales_by_id(id: string) {
     return GATEWAY_ENDPOINT.get(`/promosales/${id}`);
   },
-  $_fetch_promosales_by_id(id: string) {
-    return GATEWAY_ENDPOINT.get(`/promosales/${id}`);
-  },
+  // $_fetch_promosales_by_id(id: string) {
+  //   return GATEWAY_ENDPOINT.get(`/promosales/${id}`);
+  // },
   $_update_promosale(id: string, payload: any) {
     return GATEWAY_ENDPOINT.patch(`/promosales/${id}`, payload);
   },
