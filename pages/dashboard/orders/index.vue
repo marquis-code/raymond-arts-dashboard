@@ -1,1119 +1,1113 @@
 <template>
-    <div class="space-y-6">
-      <!-- Header with actions -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div class="animate-fade-in">
-          <h1 class="text-2xl font-bold text-gray-900">Orders Management</h1>
-          <p class="text-gray-500 mt-1">Track and manage customer orders for your products</p>
-        </div>
-        <div class="flex gap-3 animate-slide-in-right">
-          <div class="relative">
-            <input 
-              type="text" 
-              v-model="searchQuery" 
-              placeholder="Search orders..." 
-              class="pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
-            />
-            <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+  <div class="min-h-screen bg-gray-50">
+    <!-- Header Section -->
+
+    <div class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div
+          class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+        >
+          <div class="animate-fade-in">
+            <h1 class="text-2xl font-bold text-gray-900">Orders Management</h1>
+
+            <p class="text-gray-600 mt-1">
+              Track orders, installments, and payment schedules
+            </p>
           </div>
-          <button 
-            @click="exportOrders" 
-            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-all duration-200"
-          >
-            <Download class="h-4 w-4 mr-2" />
-            Export
-          </button>
+
+          <div class="flex flex-col sm:flex-row gap-3 animate-slide-in-right">
+            <div class="relative">
+              <input
+                type="text"
+                v-model="searchQuery"
+                placeholder="Search orders, customers..."
+                class="pl-10 pr-4 py-3 w-full sm:w-80 border border-gray-300 rounded-xl shadow-sm text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+              />
+
+              <Search
+                class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
+              />
+            </div>
+
+            <button
+              @click="exportOrders"
+              class="inline-flex items-center px-4 py-3 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-all duration-200"
+            >
+              <Download class="h-4 w-4 mr-2" />
+
+              Export
+            </button>
+          </div>
         </div>
       </div>
-  
-      <!-- Order Filters -->
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 animate-fade-in">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="transition-all duration-200 hover:shadow-md p-2 rounded-md">
-            <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select 
-              id="status-filter" 
-              v-model="filters.status" 
-              class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
+    </div>
+
+    <!-- Statistics Dashboard -->
+
+    <div class="py-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Orders -->
+
+        <div
+          class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 animate-fade-in"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Total Orders</p>
+              <!-- {{ pagination }} -->
+
+              <p class="text-2xl font-bold text-gray-900 mt-2">
+                {{ pagination?.total }}
+              </p>
+
+              <p class="text-sm text-green-600 mt-1">
+                <TrendingUp class="inline h-4 w-4 mr-1" />
+
+                +12% from last month
+              </p>
+            </div>
+
+            <div
+              class="h-12 w-12 bg-blue-100 rounded-xl flex items-center justify-center"
+            >
+              <ShoppingBag class="h-6 w-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Installment Orders -->
+
+        <div
+          class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 animate-fade-in"
+          style="animation-delay: 0.1s"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">
+                Installment Orders
+              </p>
+
+              <p class="text-2xl font-bold text-gray-900 mt-2">
+                {{ orderStats.installmentOrders }}
+              </p>
+
+              <p class="text-sm text-purple-600 mt-1">
+                {{
+                  (
+                    (orderStats.installmentOrders / orderStats.totalOrders) *
+                    100
+                  ).toFixed(1)
+                }}% of total
+              </p>
+            </div>
+
+            <div
+              class="h-12 w-12 bg-purple-100 rounded-xl flex items-center justify-center"
+            >
+              <CreditCard class="h-6 w-6 text-purple-600" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Outstanding Balance -->
+
+        <div
+          class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 animate-fade-in"
+          style="animation-delay: 0.2s"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">
+                Outstanding Balance
+              </p>
+
+              <p class="text-2xl font-bold text-gray-900 mt-2">
+                ${{ formatCurrency(orderStats.outstandingBalance) }}
+              </p>
+
+              <p class="text-sm text-orange-600 mt-1">
+                {{ orderStats.overdueCount }} overdue payments
+              </p>
+            </div>
+
+            <div
+              class="h-12 w-12 bg-orange-100 rounded-xl flex items-center justify-center"
+            >
+              <DollarSign class="h-6 w-6 text-orange-600" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue This Month -->
+
+        <div
+          class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 animate-fade-in"
+          style="animation-delay: 0.3s"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">
+                Revenue This Month
+              </p>
+
+              <p class="text-2xl font-bold text-gray-900 mt-2">
+                ${{ formatCurrency(orderStats.monthlyRevenue) }}
+              </p>
+
+              <p class="text-sm text-green-600 mt-1">
+                <TrendingUp class="inline h-4 w-4 mr-1" />
+
+                +8.2% from last month
+              </p>
+            </div>
+
+            <div
+              class="h-12 w-12 bg-green-100 rounded-xl flex items-center justify-center"
+            >
+              <BarChart3 class="h-6 w-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters Section -->
+
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8 animate-fade-in"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Status</label
+            >
+
+            <select
+              v-model="filters.status"
+              class="w-full rounded-xl text-sm border py-2.5 px-3 border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200"
             >
               <option value="all">All Status</option>
+
               <option value="pending">Pending</option>
+
               <option value="processing">Processing</option>
+
               <option value="shipped">Shipped</option>
+
               <option value="delivered">Delivered</option>
+
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
-          <div class="transition-all duration-200 hover:shadow-md p-2 rounded-md">
-            <label for="date-range" class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-            <select 
-              id="date-range" 
-              v-model="filters.dateRange" 
-              class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Payment Type</label
+            >
+
+            <select
+              v-model="filters.paymentType"
+              class="w-full rounded-xl text-sm border py-2.5 px-3 border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200"
+            >
+              <option value="all">All Types</option>
+
+              <option value="one_time">One-time Payment</option>
+
+              <option value="installment">Installment Plan</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Payment Status</label
+            >
+
+            <select
+              v-model="filters.paymentStatus"
+              class="w-full rounded-xl text-sm border py-2.5 px-3 border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200"
+            >
+              <option value="all">All Payment Status</option>
+
+              <option value="paid">Fully Paid</option>
+
+              <option value="partially_paid">Partially Paid</option>
+
+              <option value="pending">Pending</option>
+
+              <option value="overdue">Overdue</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Date Range</label
+            >
+
+            <select
+              v-model="filters.dateRange"
+              class="w-full rounded-xl text-sm border py-2.5 px-3 border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200"
             >
               <option value="all">All Time</option>
+
               <option value="today">Today</option>
-              <option value="yesterday">Yesterday</option>
+
               <option value="week">This Week</option>
+
               <option value="month">This Month</option>
+
               <option value="year">This Year</option>
             </select>
           </div>
-          <div class="transition-all duration-200 hover:shadow-md p-2 rounded-md">
-            <label for="payment-status" class="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
-            <select 
-              id="payment-status" 
-              v-model="filters.paymentStatus" 
-              class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
+
+          <div class="flex items-end">
+            <button
+              @click="resetFilters"
+              class="w-full px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-200"
             >
-              <option value="all">All Payment Status</option>
-              <option value="paid">Paid</option>
-              <option value="pending">Pending</option>
-              <option value="refunded">Refunded</option>
-            </select>
+              Reset Filters
+            </button>
           </div>
-          <div class="transition-all duration-200 hover:shadow-md p-2 rounded-md">
-            <label for="amount-range" class="block text-sm font-medium text-gray-700 mb-1">Amount Range</label>
-            <div class="flex items-center space-x-2">
-              <input 
-                type="number" 
-                v-model="filters.minAmount" 
-                placeholder="Min" 
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
-              />
-              <span>-</span>
-              <input 
-                type="number" 
-                v-model="filters.maxAmount" 
-                placeholder="Max" 
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
-              />
-            </div>
-          </div>
-        </div>
-        <div class="mt-4 flex justify-end space-x-3">
-          <button 
-            @click="resetFilters" 
-            class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-all duration-200"
-          >
-            Reset
-          </button>
-          <button 
-            @click="applyFilters" 
-            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-all duration-200"
-          >
-            Apply Filters
-          </button>
         </div>
       </div>
-  
+
       <!-- Orders Table -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
-        <div v-if="loading" class="p-8 flex justify-center items-center">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-700"></div>
+
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in"
+      >
+        <div v-if="loading" class="p-12 flex justify-center items-center">
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"
+          ></div>
         </div>
-        <div v-else-if="!filteredOrders.length" class="p-8 text-center text-gray-500">
-          <PackageX class="h-12 w-12 mx-auto mb-4 text-gray-400" />
-          <p class="text-lg font-medium">No orders found</p>
-          <p class="mt-1">Try adjusting your filters or search criteria</p>
+
+        <div
+          v-else-if="!filteredOrders.length"
+          class="p-12 text-center text-gray-500"
+        >
+          <PackageX class="h-16 w-16 mx-auto mb-4 text-gray-400" />
+
+          <p class="text-xl font-medium">No orders found</p>
+
+          <p class="mt-2">Try adjusting your filters or search criteria</p>
         </div>
-        <div v-else class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order Number
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Items
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Payment
-                </th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr 
-                v-for="order in paginatedOrders" 
-                :key="order._id" 
-                class="hover:bg-gray-50 transition-colors duration-150 animate-fade-in"
-                :style="{ animationDelay: `${paginatedOrders.indexOf(order) * 0.05}s` }"
+
+        <div v-else>
+          <!-- Mobile Cards View -->
+
+          <div class="block lg:hidden">
+            <div class="divide-y divide-gray-200">
+              <div
+                v-for="(order, index) in paginatedOrders"
+                :key="order._id"
+                class="p-6 hover:bg-gray-50 transition-all duration-200 cursor-pointer animate-fade-in"
+                :style="{ animationDelay: `${index * 0.05}s` }"
+                @click="viewOrder(order)"
               >
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-violet-600">
-                  {{ order.orderNumber }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ formatDate(order.createdAt) }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 h-8 w-8 bg-violet-100 rounded-full flex items-center justify-center">
-                      <span class="text-sm font-medium text-violet-700">{{ getInitials(order.customer.fullName) }}</span>
-                    </div>
-                    <div class="ml-3">
-                      <div class="text-sm font-medium text-gray-900">{{ order.customer.fullName }}</div>
-                      <div class="text-xs text-gray-500">{{ order.customer.email }}</div>
-                    </div>
+                <div class="flex items-start justify-between mb-4">
+                  <div>
+                    <p class="text-lg font-semibold text-violet-600">
+                      {{ order.orderNumber }}
+                    </p>
+
+                    <p class="text-sm text-gray-500">
+                      {{ formatDate(order.createdAt) }}
+                    </p>
                   </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div class="flex items-center">
-                    <span class="font-medium">{{ order.items.length }}</span>
-                    <span class="ml-1">item(s)</span>
-                    <div class="ml-2 flex -space-x-2">
-                      <div 
-                        v-for="(item, index) in order.items.slice(0, 3)" 
-                        :key="index" 
-                        class="h-6 w-6 rounded-full ring-2 ring-white overflow-hidden"
-                        :style="{ zIndex: 3 - index }"
-                      >
-                        <img 
-                          :src="item.product.images[0]" 
-                          :alt="item.product.name" 
-                          class="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div 
-                        v-if="order.items.length > 3" 
-                        class="h-6 w-6 rounded-full bg-gray-200 ring-2 ring-white flex items-center justify-center text-xs font-medium text-gray-500"
-                        style="z-index: 0"
-                      >
-                        +{{ order.items.length - 3 }}
-                      </div>
-                    </div>
+
+                  <div class="flex flex-col items-end gap-2">
+                    <span
+                      class="px-3 py-1 text-xs font-semibold rounded-full"
+                      :class="getStatusClass(order.status)"
+                    >
+                      {{ capitalizeFirstLetter(order.status) }}
+                    </span>
+
+                    <span
+                      v-if="order.paymentType === 'installment'"
+                      class="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full"
+                    >
+                      Installment
+                    </span>
                   </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  ${{ order.total.toFixed(2) }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors duration-200" 
-                    :class="{
-                      'bg-yellow-100 text-yellow-800': order.status === 'pending',
-                      'bg-blue-100 text-blue-800': order.status === 'processing',
-                      'bg-indigo-100 text-indigo-800': order.status === 'shipped',
-                      'bg-green-100 text-green-800': order.status === 'delivered',
-                      'bg-red-100 text-red-800': order.status === 'cancelled'
-                    }">
-                    {{ capitalizeFirstLetter(order.status) }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors duration-200" 
-                    :class="{
-                      'bg-green-100 text-green-800': order.paymentStatus === 'paid',
-                      'bg-yellow-100 text-yellow-800': order.paymentStatus === 'pending',
-                      'bg-gray-100 text-gray-800': order.paymentStatus === 'refunded'
-                    }">
-                    {{ capitalizeFirstLetter(order.paymentStatus) }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex justify-end space-x-2">
-                    <button 
-                      @click="viewOrder(order)" 
-                      class="text-violet-600 hover:text-violet-900 transition-colors duration-200 p-1 rounded-full hover:bg-violet-50"
-                      title="View Order Details"
-                    >
-                      <Eye class="h-4 w-4" />
-                    </button>
-                    <button 
-                      @click="updateOrderStatus(order)" 
-                      class="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-1 rounded-full hover:bg-blue-50"
-                      title="Update Status"
-                    >
-                      <RefreshCw class="h-4 w-4" />
-                    </button>
-                    <button 
-                      @click="printOrder(order)" 
-                      class="text-gray-600 hover:text-gray-900 transition-colors duration-200 p-1 rounded-full hover:bg-gray-50"
-                      title="Print Order"
-                    >
-                      <Printer class="h-4 w-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        <!-- Pagination -->
-        <div v-if="filteredOrders.length > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-          <div class="flex-1 flex justify-between sm:hidden">
-            <button 
-              @click="prevPage" 
-              :disabled="currentPage === 1"
-              :class="[
-                'relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white transition-colors duration-200',
-                currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
-              ]"
-            >
-              Previous
-            </button>
-            <button 
-              @click="nextPage" 
-              :disabled="currentPage === totalPages"
-              :class="[
-                'ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white transition-colors duration-200',
-                currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
-              ]"
-            >
-              Next
-            </button>
-          </div>
-          <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p class="text-sm text-gray-700">
-                Showing <span class="font-medium">{{ paginationStart }}</span> to <span class="font-medium">{{ paginationEnd }}</span> of <span class="font-medium">{{ filteredOrders.length }}</span> results
-              </p>
-            </div>
-            <div>
-              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <button 
-                  @click="prevPage" 
-                  :disabled="currentPage === 1"
-                  :class="[
-                    'relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 transition-colors duration-200',
-                    currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
-                  ]"
-                >
-                  <span class="sr-only">Previous</span>
-                  <ChevronLeft class="h-5 w-5" />
-                </button>
-                
-                <template v-for="page in displayedPages" :key="page">
-                  <button 
-                    v-if="page !== '...'"
-                    @click="goToPage(page)"
-                    :class="[
-                      'relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200',
-                      currentPage === page 
-                        ? 'bg-violet-50 border-violet-500 text-violet-600' 
-                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                    ]"
+                </div>
+
+                <div class="flex items-center mb-3">
+                  <div
+                    class="h-10 w-10 bg-violet-100 rounded-full flex items-center justify-center mr-3"
                   >
-                    {{ page }}
-                  </button>
-                  <span 
-                    v-else
-                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
+                    <span class="text-sm font-medium text-violet-700">{{
+                      getInitials(order.customer.fullName)
+                    }}</span>
+                  </div>
+
+                  <div>
+                    <p class="font-medium text-gray-900">
+                      {{ order.customer.fullName }}
+                    </p>
+
+                    <p class="text-sm text-gray-500">
+                      {{ order.customer.email }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="text-sm text-gray-500">
+                      {{ order.items.length }} item(s)
+                    </p>
+
+                    <p class="text-lg font-bold text-gray-900">
+                      ${{ order.total.toFixed(2) }}
+                    </p>
+                  </div>
+
+                  <div
+                    v-if="order.paymentType === 'installment'"
+                    class="text-right"
                   >
-                    ...
-                  </span>
-                </template>
-                
-                <button 
-                  @click="nextPage" 
-                  :disabled="currentPage === totalPages"
-                  :class="[
-                    'relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 transition-colors duration-200',
-                    currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
-                  ]"
+                    <p class="text-sm text-gray-500">
+                      Paid: ${{ order.paidAmount?.toFixed(2) || "0.00" }}
+                    </p>
+
+                    <p class="text-sm font-medium text-orange-600">
+                      Remaining: ${{ (order.remainingBalance || 0).toFixed(2) }}
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  v-if="
+                    order.paymentType === 'installment' && order.installmentInfo
+                  "
+                  class="mt-4 p-3 bg-purple-50 rounded-lg"
                 >
-                  <span class="sr-only">Next</span>
-                  <ChevronRight class="h-5 w-5" />
-                </button>
-              </nav>
+                  <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span class="text-gray-600">Next Payment:</span>
+
+                      <p class="font-medium">
+                        ${{
+                          order.installmentInfo.installmentAmount.toFixed(2)
+                        }}
+                      </p>
+                    </div>
+
+                    <div>
+                      <span class="text-gray-600">Frequency:</span>
+
+                      <p class="font-medium">
+                        {{
+                          capitalizeFirstLetter(
+                            order.installmentInfo.paymentFrequency
+                          )
+                        }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-  
-      <!-- Order Details Modal -->
-      <Transition name="modal">
-        <div v-if="selectedOrder" class="fixed inset-0 z-50 overflow-y-auto">
-          <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity" aria-hidden="true" @click="closeOrderDetails">
-              <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
-              <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                  <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                    <div class="flex items-center justify-between mb-4">
-                      <div class="flex items-center">
-                        <ShoppingBag class="h-6 w-6 text-violet-600 mr-2" />
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">
-                          Order {{ selectedOrder.orderNumber }}
-                        </h3>
+
+          <!-- Desktop Table View -->
+
+          <div class="hidden lg:block overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Order
+                  </th>
+
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Customer
+                  </th>
+
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Items
+                  </th>
+
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Payment
+                  </th>
+
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Status
+                  </th>
+
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr
+                  v-for="(order, index) in paginatedOrders"
+                  :key="order._id"
+                  class="hover:bg-gray-50 transition-all duration-200 cursor-pointer animate-fade-in"
+                  :style="{ animationDelay: `${index * 0.05}s` }"
+                  @click="viewOrder(order)"
+                >
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <p class="text-sm font-semibold text-violet-600">
+                        {{ order.orderNumber }}
+                      </p>
+
+                      <p class="text-xs text-gray-500">
+                        {{ formatDate(order.createdAt) }}
+                      </p>
+
+                      <div class="flex gap-1 mt-1">
+                        <span
+                          v-if="order.paymentType === 'installment'"
+                          class="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full"
+                        >
+                          Installment
+                        </span>
                       </div>
-                      <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full" 
-                        :class="{
-                          'bg-yellow-100 text-yellow-800': selectedOrder.status === 'pending',
-                          'bg-blue-100 text-blue-800': selectedOrder.status === 'processing',
-                          'bg-indigo-100 text-indigo-800': selectedOrder.status === 'shipped',
-                          'bg-green-100 text-green-800': selectedOrder.status === 'delivered',
-                          'bg-red-100 text-red-800': selectedOrder.status === 'cancelled'
-                        }">
-                        {{ capitalizeFirstLetter(selectedOrder.status) }}
+                    </div>
+                  </td>
+
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div
+                        class="h-10 w-10 bg-violet-100 rounded-full flex items-center justify-center mr-3"
+                      >
+                        <span class="text-sm font-medium text-violet-700">{{
+                          getInitials(order.customer.fullName)
+                        }}</span>
+                      </div>
+
+                      <div>
+                        <p class="text-sm font-medium text-gray-900">
+                          {{ order.customer.fullName }}
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                          {{ order.customer.email }}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <span class="text-sm font-medium"
+                        >{{ order.items.length }} item(s)</span
+                      >
+                    </div>
+                  </td>
+
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <p class="text-sm font-bold text-gray-900">
+                        ${{ order.total.toFixed(2) }}
+                      </p>
+
+                      <div v-if="order.paymentType === 'installment'">
+                        <p class="text-xs text-green-600">
+                          Paid: ${{ order.paidAmount?.toFixed(2) || "0.00" }}
+                        </p>
+
+                        <p class="text-xs text-orange-600">
+                          Remaining: ${{
+                            (order.remainingBalance || 0).toFixed(2)
+                          }}
+                        </p>
+                      </div>
+
+                      <span
+                        class="px-2 py-1 text-xs font-semibold rounded-full mt-1 inline-block"
+                        :class="getPaymentStatusClass(order.paymentStatus)"
+                      >
+                        {{ capitalizeFirstLetter(order.paymentStatus) }}
                       </span>
                     </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <!-- Order Info -->
-                      <div class="md:col-span-2 space-y-6">
-                        <!-- Order Summary -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                          <h4 class="text-sm font-medium text-gray-900 mb-3">Order Summary</h4>
-                          <div class="grid grid-cols-2 gap-2 text-sm">
-                            <div>
-                              <p class="text-gray-500">Date Placed:</p>
-                              <p class="font-medium">{{ formatDate(selectedOrder.createdAt) }}</p>
-                            </div>
-                            <div>
-                              <p class="text-gray-500">Order Age:</p>
-                              <p class="font-medium">{{ selectedOrder.age }} days</p>
-                            </div>
-                            <div>
-                              <p class="text-gray-500">Payment Status:</p>
-                              <p class="font-medium">{{ capitalizeFirstLetter(selectedOrder.paymentStatus) }}</p>
-                            </div>
-                            <div>
-                              <p class="text-gray-500">Customer:</p>
-                              <p class="font-medium">{{ selectedOrder.customer.fullName }}</p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <!-- Order Items -->
-                        <div>
-                          <h4 class="text-sm font-medium text-gray-900 mb-3">Order Items</h4>
-                          <div class="space-y-3">
-                            <div 
-                              v-for="(item, index) in selectedOrder.items" 
-                              :key="index" 
-                              class="flex items-start p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                            >
-                              <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                                <img 
-                                  :src="item.product.images[0]" 
-                                  :alt="item.product.name" 
-                                  class="h-full w-full object-cover object-center"
-                                />
-                              </div>
-                              <div class="ml-4 flex-1">
-                                <div class="flex justify-between">
-                                  <div>
-                                    <h5 class="text-sm font-medium text-gray-900">{{ item.product.name }}</h5>
-                                    <p class="mt-1 text-xs text-gray-500">ID: {{ item.product._id.substring(0, 8) }}</p>
-                                  </div>
-                                  <p class="text-sm font-medium text-gray-900">${{ item.price.toFixed(2) }}</p>
-                                </div>
-                                <div class="flex justify-between items-center mt-2">
-                                  <div class="flex items-center">
-                                    <span class="text-xs text-gray-500">Qty:</span>
-                                    <span class="ml-1 text-sm font-medium">{{ item.quantity }}</span>
-                                  </div>
-                                  <p class="text-sm font-medium text-gray-900">
-                                    ${{ item.total.toFixed(2) }}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <!-- Order Status History -->
-                        <div>
-                          <h4 class="text-sm font-medium text-gray-900 mb-3">Status History</h4>
-                          <div class="flow-root">
-                            <ul role="list" class="-mb-8">
-                              <li v-for="(event, eventIdx) in selectedOrder.statusHistory" :key="eventIdx">
-                                <div class="relative pb-8">
-                                  <span v-if="eventIdx !== selectedOrder.statusHistory.length - 1" class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
-                                  <div class="relative flex space-x-3 items-start">
-                                    <div>
-                                      <div class="relative px-1">
-                                        <div class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white" 
-                                          :class="{
-                                            'bg-yellow-100': event.status === 'pending',
-                                            'bg-blue-100': event.status === 'processing',
-                                            'bg-indigo-100': event.status === 'shipped',
-                                            'bg-green-100': event.status === 'delivered',
-                                            'bg-red-100': event.status === 'cancelled'
-                                          }">
-                                          <Clock v-if="event.status === 'pending'" class="h-5 w-5 text-yellow-600" />
-                                          <Loader v-else-if="event.status === 'processing'" class="h-5 w-5 text-blue-600" />
-                                          <Truck v-else-if="event.status === 'shipped'" class="h-5 w-5 text-indigo-600" />
-                                          <CheckCircle v-else-if="event.status === 'delivered'" class="h-5 w-5 text-green-600" />
-                                          <XCircle v-else-if="event.status === 'cancelled'" class="h-5 w-5 text-red-600" />
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                                      <div>
-                                        <p class="text-sm text-gray-900">
-                                          Status changed to <span class="font-medium">{{ capitalizeFirstLetter(event.status) }}</span>
-                                        </p>
-                                        <p v-if="event.notes" class="mt-0.5 text-sm text-gray-500">
-                                          {{ event.notes }}
-                                        </p>
-                                      </div>
-                                      <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                                        {{ formatDate(event.date) }}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <!-- Customer & Shipping Info -->
-                      <div class="space-y-6">
-                        <!-- Order Totals -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                          <h4 class="text-sm font-medium text-gray-900 mb-3">Order Totals</h4>
-                          <div class="space-y-2">
-                            <div class="flex justify-between text-sm">
-                              <span class="text-gray-500">Subtotal:</span>
-                              <span class="font-medium">${{ selectedOrder.subtotal.toFixed(2) }}</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                              <span class="text-gray-500">Tax ({{ selectedOrder.taxRate }}%):</span>
-                              <span class="font-medium">${{ selectedOrder.tax.toFixed(2) }}</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                              <span class="text-gray-500">Shipping:</span>
-                              <span class="font-medium">${{ selectedOrder.shipping.toFixed(2) }}</span>
-                            </div>
-                            <div class="pt-2 mt-2 border-t border-gray-200">
-                              <div class="flex justify-between text-sm font-medium">
-                                <span>Total:</span>
-                                <span>${{ selectedOrder.total.toFixed(2) }}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <!-- Shipping Address -->
-                        <div>
-                          <h4 class="text-sm font-medium text-gray-900 mb-3">Shipping Address</h4>
-                          <div class="p-3 border border-gray-200 rounded-lg">
-                            <p class="text-sm font-medium">{{ selectedOrder.shippingAddress.firstName }} {{ selectedOrder.shippingAddress.lastName }}</p>
-                            <p class="text-sm text-gray-500 mt-1">{{ selectedOrder.shippingAddress.address }}</p>
-                            <p class="text-sm text-gray-500">
-                              {{ selectedOrder.shippingAddress.city }}, {{ selectedOrder.shippingAddress.state }} {{ selectedOrder.shippingAddress.postalCode }}
-                            </p>
-                            <p class="text-sm text-gray-500">
-                              {{ selectedOrder.shippingAddress.country }}
-                            </p>
-                            <div class="mt-2 pt-2 border-t border-gray-100">
-                              <p class="text-sm text-gray-500">
-                                <span class="font-medium">Phone:</span> {{ selectedOrder.shippingAddress.phone }}
-                              </p>
-                              <p class="text-sm text-gray-500">
-                                <span class="font-medium">Email:</span> {{ selectedOrder.shippingAddress.email }}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <!-- Billing Address -->
-                        <div>
-                          <h4 class="text-sm font-medium text-gray-900 mb-3">Billing Address</h4>
-                          <div class="p-3 border border-gray-200 rounded-lg">
-                            <p class="text-sm font-medium">{{ selectedOrder.billingAddress.firstName }} {{ selectedOrder.billingAddress.lastName }}</p>
-                            <p class="text-sm text-gray-500 mt-1">{{ selectedOrder.billingAddress.address }}</p>
-                            <p class="text-sm text-gray-500">
-                              {{ selectedOrder.billingAddress.city }}, {{ selectedOrder.billingAddress.state }} {{ selectedOrder.billingAddress.postalCode }}
-                            </p>
-                            <p class="text-sm text-gray-500">
-                              {{ selectedOrder.billingAddress.country }}
-                            </p>
-                            <div class="mt-2 pt-2 border-t border-gray-100">
-                              <p class="text-sm text-gray-500">
-                                <span class="font-medium">Phone:</span> {{ selectedOrder.billingAddress.phone }}
-                              </p>
-                              <p class="text-sm text-gray-500">
-                                <span class="font-medium">Email:</span> {{ selectedOrder.billingAddress.email }}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <!-- Notes -->
-                        <div v-if="selectedOrder.notes">
-                          <h4 class="text-sm font-medium text-gray-900 mb-3">Order Notes</h4>
-                          <div class="p-3 border border-gray-200 rounded-lg bg-yellow-50">
-                            <p class="text-sm text-gray-700">{{ selectedOrder.notes }}</p>
-                          </div>
-                        </div>
-                      </div>
+                  </td>
+
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span
+                      class="px-3 py-1 text-xs font-semibold rounded-full"
+                      :class="getStatusClass(order.status)"
+                    >
+                      {{ capitalizeFirstLetter(order.status) }}
+                    </span>
+                  </td>
+
+                  <td class="px-6 py-4 whitespace-nowrap text-right">
+                    <div class="flex justify-end space-x-2">
+                      <button
+                        @click.stop="viewOrder(order)"
+                        class="p-2 text-violet-600 hover:text-violet-900 hover:bg-violet-50 rounded-lg transition-all duration-200"
+                        title="View Details"
+                      >
+                        <Eye class="h-4 w-4" />
+                      </button>
+
+                      <button
+                        @click.stop="updateOrderStatus(order)"
+                        class="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                        title="Update Status"
+                      >
+                        <RefreshCw class="h-4 w-4" />
+                      </button>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button 
-                  @click="updateOrderStatus(selectedOrder)" 
-                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-violet-600 text-base font-medium text-white hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200"
-                >
-                  Update Status
-                </button>
-                <button 
-                  @click="printOrder(selectedOrder)" 
-                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200"
-                >
-                  Print Order
-                </button>
-                <button 
-                  @click="closeOrderDetails" 
-                  type="button" 
-                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </div>
-      </Transition>
-  
-      <!-- Update Status Modal -->
-      <Transition name="modal">
-        <div v-if="isUpdateStatusModalOpen" class="fixed inset-0 z-50 overflow-y-auto">
-          <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity" aria-hidden="true" @click="isUpdateStatusModalOpen = false">
-              <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full">
-              <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                  <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-violet-100 sm:mx-0 sm:h-10 sm:w-10">
-                    <RefreshCw class="h-6 w-6 text-violet-600" />
-                  </div>
-                  <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">
-                      Update Order Status
-                    </h3>
-                    <div class="mt-4 space-y-4">
-                      <div>
-                        <label for="order-status" class="block text-sm font-medium text-gray-700">Status</label>
-                        <select 
-                          id="order-status" 
-                          v-model="newStatus" 
-                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="shipped">Shipped</option>
-                          <option value="delivered">Delivered</option>
-                          <option value="cancelled">Cancelled</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label for="status-notes" class="block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                        <textarea 
-                          id="status-notes" 
-                          v-model="statusNotes" 
-                          rows="3" 
-                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
-                          placeholder="Add notes about this status change..."
-                        ></textarea>
-                      </div>
-                      
-                      <div v-if="newStatus === 'shipped'" class="p-3 bg-blue-50 rounded-lg">
-                        <h4 class="text-sm font-medium text-blue-800 mb-2">Shipping Information</h4>
-                        <div class="space-y-3">
-                          <div>
-                            <label for="tracking-number" class="block text-sm font-medium text-gray-700">Tracking Number</label>
-                            <input 
-                              type="text" 
-                              id="tracking-number" 
-                              v-model="trackingNumber" 
-                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
-                              placeholder="Enter tracking number..."
-                            />
-                          </div>
-                          <div>
-                            <label for="shipping-carrier" class="block text-sm font-medium text-gray-700">Shipping Carrier</label>
-                            <select 
-                              id="shipping-carrier" 
-                              v-model="shippingCarrier" 
-                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px] transition-all duration-200 p-3 outline-none border-[0.5px]"
-                            >
-                              <option value="usps">USPS</option>
-                              <option value="ups">UPS</option>
-                              <option value="fedex">FedEx</option>
-                              <option value="dhl">DHL</option>
-                              <option value="other">Other</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button 
-                  @click="saveOrderStatus" 
-                  :disabled="updating"
-                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-violet-600 text-base font-medium text-white hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span v-if="updating" class="mr-2">
-                    <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  </span>
-                  Update Status
-                </button>
-                <button 
-                  @click="isUpdateStatusModalOpen = false" 
-                  type="button" 
-                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Transition>
+
+          <!-- Pagination -->
+
+          <div class="mt-6 p-4">
+      <CorePagination 
+        :current-page="pagination.page"
+        :total-pages="pagination.totalPages"
+        :total="pagination.total"
+        :limit="pagination.limit"
+        @page-change="handlePageChange"
+      />
     </div>
-  </template>
-  
-  <script setup lang="ts">
-  import { ref, computed, onMounted, watch } from 'vue'
-  import { useFetchAllOrders } from "@/composables/modules/orders/useFetchAllOrders"
-  import { 
-    Search, Download, Eye, Printer, RefreshCw, PackageX,
-    ChevronLeft, ChevronRight, ShoppingBag, Clock, Loader,
-    Truck, CheckCircle, XCircle
-  } from 'lucide-vue-next'
-  const { orders, loading } =  useFetchAllOrders()
-  
-  // Types
-  interface Customer {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    fullName: string;
-    id: string;
-  }
-  
-  interface Product {
-    _id: string;
-    name: string;
-    images: string[];
-    discountPercentage: number;
-    id: string;
-  }
-  
-  interface OrderItem {
-    product: Product;
-    quantity: number;
-    price: number;
-    total: number;
-    _id: string;
-    id: string;
-  }
-  
-  interface Address {
-    firstName: string;
-    lastName: string;
-    address: string;
-    city: string;
-    state: string;
-    country: string;
-    postalCode: string;
-    phone: string;
-    email: string;
-    _id: string;
-    id: string;
-  }
-  
-  interface StatusHistoryEvent {
-    status: string;
-    date: string;
-    notes: string;
-    userId: string;
-  }
-  
-  interface Order {
-    _id: string;
-    orderNumber: string;
-    customer: Customer;
-    items: OrderItem[];
-    subtotal: number;
-    tax: number;
-    taxRate: number;
-    shipping: number;
-    total: number;
-    status: string;
-    paymentStatus: string;
-    shippingAddress: Address;
-    billingAddress: Address;
-    notes: string;
-    statusHistory: StatusHistoryEvent[];
-    createdAt: string;
-    updatedAt: string;
-    age: number;
-    id: string;
-  }
-  
-  // State
-//   const loading = ref(true)
-  const updating = ref(false)
-//   const orders = ref<Order[]>([])
-  
-  // Search and filters
-  const searchQuery = ref('')
-  const filters = ref({
-    status: 'all',
-    dateRange: 'all',
-    paymentStatus: 'all',
-    minAmount: null as number | null,
-    maxAmount: null as number | null
-  })
-  
-  // Modal states
-  const selectedOrder = ref<Order | null>(null)
-  const isUpdateStatusModalOpen = ref(false)
-  const orderToUpdate = ref<Order | null>(null)
-  const newStatus = ref('')
-  const statusNotes = ref('')
-  const trackingNumber = ref('')
-  const shippingCarrier = ref('usps')
-  
-  // Pagination
-  const itemsPerPage = ref(5)
-  const currentPage = ref(1)
-  
-  // Filtered orders based on search and filters
-  const filteredOrders = computed(() => {
-    return orders.value.filter(order => {
-      // Search query
-      if (searchQuery.value && 
-          !order.orderNumber.toLowerCase().includes(searchQuery.value.toLowerCase()) && 
-          !order.customer.fullName.toLowerCase().includes(searchQuery.value.toLowerCase())) {
-        return false
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Order Details Side Drawer -->
+
+    <OrderDetailsSideDrawer
+      :order="selectedOrder"
+      :is-open="!!selectedOrder"
+      @close="closeOrderDetails"
+      @update-status="updateOrderStatus"
+    />
+
+    <!-- Update Status Modal -->
+
+    <UpdateStatusModal
+      :order="orderToUpdate"
+      :is-open="isUpdateStatusModalOpen"
+      @close="isUpdateStatusModalOpen = false"
+      @updated="handleStatusUpdated"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch } from "vue";
+
+import { useFetchAllOrders } from "@/composables/modules/orders/useFetchAllOrders";
+
+import {
+  Search,
+  Download,
+  Eye,
+  RefreshCw,
+  PackageX,
+  ShoppingBag,
+  CreditCard,
+  DollarSign,
+  BarChart3,
+  TrendingUp,
+} from "lucide-vue-next";
+
+import { definePageMeta } from "#imports";
+
+// Types
+
+interface InstallmentInfo {
+  isInstallment: boolean;
+
+  numberOfInstallments: number;
+
+  downPayment: number;
+
+  installmentAmount: number;
+
+  interestRate: number;
+
+  totalPayable: number;
+
+  totalInterest: number;
+
+  remainingAmount: number;
+
+  paymentFrequency: string;
+
+  paymentMethod: string;
+}
+
+interface Customer {
+  _id: string;
+
+  firstName: string;
+
+  lastName: string;
+
+  email: string;
+
+  fullName: string;
+
+  id: string;
+}
+
+interface OrderItem {
+  product: string;
+
+  quantity: number;
+
+  price: number;
+
+  size?: string;
+
+  color?: string;
+
+  discount: number;
+
+  total: number;
+}
+
+interface Order {
+  _id: string;
+
+  orderNumber: string;
+
+  customer: Customer;
+
+  items: OrderItem[];
+
+  subtotal: number;
+
+  tax: number;
+
+  taxRate: number;
+
+  shipping: number;
+
+  discount: number;
+
+  total: number;
+
+  status: string;
+
+  paymentStatus: string;
+
+  paymentType: string;
+
+  installmentInfo?: InstallmentInfo;
+
+  paidAmount?: number;
+
+  remainingBalance?: number;
+
+  isFullyPaid: boolean;
+
+  isOverdue: boolean;
+
+  createdAt: string;
+
+  updatedAt: string;
+
+  age: number;
+
+  id: string;
+}
+
+// Composables
+
+const { orders, loading,
+  pagination,
+  changePage } = useFetchAllOrders();
+
+// State
+
+const searchQuery = ref("");
+
+const selectedOrder = ref<Order | null>(null);
+
+const orderToUpdate = ref<Order | null>(null);
+
+const isUpdateStatusModalOpen = ref(false);
+
+const currentPage = ref(1);
+
+const itemsPerPage = ref(10);
+
+const filters = ref({
+  status: "all",
+
+  paymentType: "all",
+
+  paymentStatus: "all",
+
+  dateRange: "all",
+});
+
+// Computed
+
+const filteredOrders = computed(() => {
+  return orders.value.filter((order) => {
+    // Search filter
+
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase();
+
+      if (
+        !order.orderNumber.toLowerCase().includes(query) &&
+        !order.customer.fullName.toLowerCase().includes(query) &&
+        !order.customer.email.toLowerCase().includes(query)
+      ) {
+        return false;
       }
-      
-      // Status filter
-      if (filters.value.status !== 'all' && order.status !== filters.value.status) {
-        return false
+    }
+
+    // Status filter
+
+    if (
+      filters.value.status !== "all" &&
+      order.status !== filters.value.status
+    ) {
+      return false;
+    }
+
+    // Payment type filter
+
+    if (
+      filters.value.paymentType !== "all" &&
+      order.paymentType !== filters.value.paymentType
+    ) {
+      return false;
+    }
+
+    // Payment status filter
+
+    if (
+      filters.value.paymentStatus !== "all" &&
+      order.paymentStatus !== filters.value.paymentStatus
+    ) {
+      return false;
+    }
+
+    // Date range filter
+
+    if (filters.value.dateRange !== "all") {
+      const orderDate = new Date(order.createdAt);
+
+      const now = new Date();
+
+      switch (filters.value.dateRange) {
+        case "today":
+          if (orderDate.toDateString() !== now.toDateString()) return false;
+
+          break;
+
+        case "week":
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+          if (orderDate < weekAgo) return false;
+
+          break;
+
+        case "month":
+          if (
+            orderDate.getMonth() !== now.getMonth() ||
+            orderDate.getFullYear() !== now.getFullYear()
+          )
+            return false;
+
+          break;
+
+        case "year":
+          if (orderDate.getFullYear() !== now.getFullYear()) return false;
+
+          break;
       }
-      
-      // Payment status filter
-      if (filters.value.paymentStatus !== 'all' && order.paymentStatus !== filters.value.paymentStatus) {
-        return false
-      }
-      
-      // Date range filter
-      if (filters.value.dateRange !== 'all') {
-        const orderDate = new Date(order.createdAt)
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        
-        const yesterday = new Date(today)
-        yesterday.setDate(yesterday.getDate() - 1)
-        
-        const weekStart = new Date(today)
-        weekStart.setDate(weekStart.getDate() - weekStart.getDay())
-        
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
-        
-        const yearStart = new Date(today.getFullYear(), 0, 1)
-        
-        if (filters.value.dateRange === 'today' && orderDate < today) {
-          return false
-        }
-        
-        if (filters.value.dateRange === 'yesterday' && (orderDate < yesterday || orderDate >= today)) {
-          return false
-        }
-        
-        if (filters.value.dateRange === 'week' && orderDate < weekStart) {
-          return false
-        }
-        
-        if (filters.value.dateRange === 'month' && orderDate < monthStart) {
-          return false
-        }
-        
-        if (filters.value.dateRange === 'year' && orderDate < yearStart) {
-          return false
-        }
-      }
-      
-      // Amount range filter
-      if (filters.value.minAmount !== null && order.total < filters.value.minAmount) {
-        return false
-      }
-      if (filters.value.maxAmount !== null && order.total > filters.value.maxAmount) {
-        return false
-      }
-      
-      return true
+    }
+
+    return true;
+  });
+});
+
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+
+  const end = start + itemsPerPage.value;
+
+  return filteredOrders.value.slice(start, end);
+});
+
+const totalPages = computed(() =>
+  Math.ceil(filteredOrders.value.length / itemsPerPage.value)
+);
+
+const paginationStart = computed(() => {
+  if (filteredOrders.value.length === 0) return 0;
+
+  return (currentPage.value - 1) * itemsPerPage.value + 1;
+});
+
+const paginationEnd = computed(() => {
+  if (filteredOrders.value.length === 0) return 0;
+
+  return Math.min(
+    currentPage.value * itemsPerPage.value,
+    filteredOrders.value.length
+  );
+});
+
+const orderStats = computed(() => {
+  const totalOrders = orders.value.length;
+
+  const installmentOrders = orders.value.filter(
+    (o) => o.paymentType === "installment"
+  ).length;
+
+  const outstandingBalance = orders.value
+
+    .filter((o) => o.paymentType === "installment" && !o.isFullyPaid)
+
+    .reduce((sum, o) => sum + (o.remainingBalance || 0), 0);
+
+  const overdueCount = orders.value.filter((o) => o.isOverdue).length;
+
+  const currentMonth = new Date().getMonth();
+
+  const currentYear = new Date().getFullYear();
+
+  const monthlyRevenue = orders.value
+
+    .filter((o) => {
+      const orderDate = new Date(o.createdAt);
+
+      return (
+        orderDate.getMonth() === currentMonth &&
+        orderDate.getFullYear() === currentYear
+      );
     })
-  })
-  
-  // Pagination
-  const totalPages = computed(() => Math.ceil(filteredOrders.value.length / itemsPerPage.value))
-  
-  const paginatedOrders = computed(() => {
-    const startIndex = (currentPage.value - 1) * itemsPerPage.value
-    const endIndex = startIndex + itemsPerPage.value
-    return filteredOrders.value.slice(startIndex, endIndex)
-  })
-  
-  const paginationStart = computed(() => {
-    if (filteredOrders.value.length === 0) return 0
-    return (currentPage.value - 1) * itemsPerPage.value + 1
-  })
-  
-  const paginationEnd = computed(() => {
-    if (filteredOrders.value.length === 0) return 0
-    return Math.min(currentPage.value * itemsPerPage.value, filteredOrders.value.length)
-  })
-  
-  const displayedPages = computed(() => {
-    if (totalPages.value <= 7) {
-      return Array.from({ length: totalPages.value }, (_, i) => i + 1)
-    }
-    
-    if (currentPage.value <= 4) {
-      return [1, 2, 3, 4, 5, '...', totalPages.value]
-    }
-    
-    if (currentPage.value >= totalPages.value - 3) {
-      return [1, '...', totalPages.value - 4, totalPages.value - 3, totalPages.value - 2, totalPages.value - 1, totalPages.value]
-    }
-    
-    return [1, '...', currentPage.value - 1, currentPage.value, currentPage.value + 1, '...', totalPages.value]
-  })
-  
-  // Pagination functions
-  const prevPage = () => {
-    if (currentPage.value > 1) {
-      currentPage.value--
-    }
-  }
-  
-  const nextPage = () => {
-    if (currentPage.value < totalPages.value) {
-      currentPage.value++
-    }
-  }
-  
-  const goToPage = (page: number) => {
-    currentPage.value = page
-  }
-  
-  // Watch for filter changes to reset pagination
-  watch([filters, searchQuery], () => {
-    currentPage.value = 1
-  })
-  
-  // Filter functions
-  const resetFilters = () => {
-    filters.value = {
-      status: 'all',
-      dateRange: 'all',
-      paymentStatus: 'all',
-      minAmount: null,
-      maxAmount: null
-    }
-    searchQuery.value = ''
-  }
-  
-  const applyFilters = () => {
-    // Filters are already applied via the computed property
-    // Reset to first page when filters change
-    currentPage.value = 1
-  }
-  
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date)
-  }
-  
-  // Get initials from name
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .toUpperCase()
-      .substring(0, 2)
-  }
-  
-  // Capitalize first letter
-  const capitalizeFirstLetter = (string: string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1)
-  }
-  
-  // Order actions
-  const viewOrder = (order: Order) => {
-    selectedOrder.value = order
-  }
-  
-  const closeOrderDetails = () => {
-    selectedOrder.value = null
-  }
-  
-  const updateOrderStatus = (order: Order) => {
-    orderToUpdate.value = order
-    newStatus.value = order.status
-    statusNotes.value = ''
-    trackingNumber.value = ''
-    shippingCarrier.value = 'usps'
-    isUpdateStatusModalOpen.value = true
-  }
-  
-  const saveOrderStatus = async () => {
-    if (!orderToUpdate.value) return
-    
-    updating.value = true
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const index = orders.value.findIndex(o => o._id === orderToUpdate.value?._id)
-      if (index !== -1) {
-        // Update order status
-        orders.value[index].status = newStatus.value
-        
-        // Create status history entry
-        let notes = statusNotes.value || `Status changed to ${newStatus.value}`
-        
-        // Add tracking info for shipped status
-        if (newStatus.value === 'shipped' && trackingNumber.value) {
-          notes += ` | Tracking: ${trackingNumber.value} (${capitalizeFirstLetter(shippingCarrier.value)})`
-        }
-        
-        const statusEvent: StatusHistoryEvent = {
-          status: newStatus.value,
-          date: new Date().toISOString(),
-          notes: notes,
-          userId: 'current-user' // In a real app, get this from auth
-        }
-        
-        orders.value[index].statusHistory.unshift(statusEvent)
-        orders.value[index].updatedAt = new Date().toISOString()
-        
-        // If we were viewing this order, update the selected order too
-        if (selectedOrder.value && selectedOrder.value._id === orderToUpdate.value._id) {
-          selectedOrder.value = { ...orders.value[index] }
-        }
-      }
-      
-      isUpdateStatusModalOpen.value = false
-      updating.value = false
-    } catch (error) {
-      console.error('Error updating order status:', error)
-      updating.value = false
-    }
-  }
-  
-  const printOrder = (order: Order) => {
-    // In a real app, this would generate a printable version of the order
-    // For this example, we'll just show an alert
-    alert(`Printing order ${order.orderNumber}`)
-  }
-  
-  // Export orders function
-  const exportOrders = () => {
-    // In a real application, this would generate a CSV or Excel file
-    // For this example, we'll just show an alert
-    alert(`Exporting ${filteredOrders.value.length} orders to CSV`)
-  }
-  
-//   // Lifecycle hooks
-//   onMounted(() => {
-//     fetchOrders()
-//   })
-  
-  definePageMeta({
-    layout: 'dashboard'
-  })
-  </script>
-  
-  <style scoped>
-  /* Animations */
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-  }
-  
-  .animate-slide-in-right {
-    animation: slideInRight 0.5s ease-in-out;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes slideInRight {
-    from { transform: translateX(20px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  
-  /* Modal transitions */
-  .modal-enter-active,
-  .modal-leave-active {
-    transition: all 0.3s ease;
-  }
-  
-  .modal-enter-from,
-  .modal-leave-to {
+
+    .reduce((sum, o) => sum + (o.paidAmount || o.total), 0);
+
+  return {
+    totalOrders,
+
+    installmentOrders,
+
+    outstandingBalance,
+
+    overdueCount,
+
+    monthlyRevenue,
+  };
+});
+
+// Methods
+
+const formatDate = (dateString: string) => {
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+
+    month: "short",
+
+    day: "numeric",
+
+    hour: "2-digit",
+
+    minute: "2-digit",
+  }).format(new Date(dateString));
+};
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("en-US").format(amount);
+};
+
+const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .substring(0, 2);
+};
+
+const capitalizeFirstLetter = (string: string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1).replace("_", " ");
+};
+
+const getStatusClass = (status: string) => {
+  const classes = {
+    pending: "bg-yellow-100 text-yellow-800",
+
+    processing: "bg-blue-100 text-blue-800",
+
+    shipped: "bg-indigo-100 text-indigo-800",
+
+    delivered: "bg-green-100 text-green-800",
+
+    cancelled: "bg-red-100 text-red-800",
+  };
+
+  return classes[status as keyof typeof classes] || "bg-gray-100 text-gray-800";
+};
+
+const getPaymentStatusClass = (status: string) => {
+  const classes = {
+    paid: "bg-green-100 text-green-800",
+
+    partially_paid: "bg-orange-100 text-orange-800",
+
+    pending: "bg-yellow-100 text-yellow-800",
+
+    overdue: "bg-red-100 text-red-800",
+  };
+
+  return classes[status as keyof typeof classes] || "bg-gray-100 text-gray-800";
+};
+
+const viewOrder = (order: Order) => {
+  selectedOrder.value = order;
+};
+
+const closeOrderDetails = () => {
+  selectedOrder.value = null;
+};
+
+const updateOrderStatus = (order: Order) => {
+  orderToUpdate.value = order;
+
+  isUpdateStatusModalOpen.value = true;
+};
+
+const handleStatusUpdated = () => {
+  isUpdateStatusModalOpen.value = false;
+
+  orderToUpdate.value = null;
+};
+
+const resetFilters = () => {
+  filters.value = {
+    status: "all",
+
+    paymentType: "all",
+
+    paymentStatus: "all",
+
+    dateRange: "all",
+  };
+
+  searchQuery.value = "";
+
+  currentPage.value = 1;
+};
+
+const exportOrders = () => {
+  // Implementation for exporting orders
+
+  console.log("Exporting orders...");
+};
+
+
+// Watch for filter changes
+
+watch(
+  [filters, searchQuery],
+  () => {
+    currentPage.value = 1;
+  },
+  { deep: true }
+);
+
+// Page meta
+
+definePageMeta({
+  layout: "dashboard",
+});
+
+
+const handlePageChange = async (page: number) => {
+  console.log('cloed')
+  await changePage(page)
+}
+
+</script>
+
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+
+  opacity: 0;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.6s ease-out forwards;
+
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from {
     opacity: 0;
-    transform: scale(0.95);
+
+    transform: translateY(20px);
   }
-  
-  /* Table row hover effect */
-  tr {
-    transition: background-color 0.2s ease;
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
   }
-  
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+
+    transform: translateX(30px);
   }
-  
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
+
+  to {
+    opacity: 1;
+
+    transform: translateX(0);
   }
-  
-  ::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 4px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
-  }
-  </style>
+}
+
+/* Custom scrollbar */
+
+::-webkit-scrollbar {
+  width: 6px;
+
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+</style>

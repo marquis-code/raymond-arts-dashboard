@@ -1,11 +1,11 @@
 import { orders_api } from '@/apiFactory/modules/orders'
 import { ref } from 'vue'
 
-export const useUpdateOrderStatus = (id: string, data: any) => {
+export const useUpdateOrderStatus = () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const updateOrderStatus = async () => {
+  const updateOrderStatus = async (id: string, data: any) => {
     loading.value = true
     error.value = null
     try {

@@ -714,7 +714,7 @@
     if (config) {
       // Edit mode
       currentShipping.value = {
-        id: config.id,
+        id: config._id,
         countryCode: config.countryCode,
         countryName: config.countryName,
         shippingRate: config.shippingRate,

@@ -1,12 +1,34 @@
 import { GATEWAY_ENDPOINT } from "../axios.config";
 
+interface OrdersParams {
+  page?: number
+  limit?: number
+}
+
 export const orders_api = {
   $_create_order(data: any) {
     return GATEWAY_ENDPOINT.post("/orders", data);
   },
   
-  $_fetch_all_orders() {
-    return GATEWAY_ENDPOINT.get("/orders");
+  $_fetch_all_orders(params: OrdersParams = {}) {
+    const {
+      page = 1,
+      limit = 10
+    } = params
+
+       // Build query parameters object, only including defined values
+       const queryParams: Record<string, string | number> = {
+        page,
+        limit,
+      }
+
+          // Convert to URL search params
+    const searchParams = new URLSearchParams()
+    Object.entries(queryParams).forEach(([key, value]) => {
+      searchParams.append(key, String(value))
+    })
+
+    return GATEWAY_ENDPOINT.get(`/orders?${searchParams.toString()}`);
   },
   
   $_fetch_my_orders(pagination: any) {
