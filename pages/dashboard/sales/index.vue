@@ -302,7 +302,7 @@
         <!-- Customers List -->
         <div v-else class="space-y-4">
           <div v-for="(customer, index) in customers" :key="customer.customer._id" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-            <div class="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center text-white font-medium">
+            <div class="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-violet-500 to-green-700 flex items-center justify-center text-white font-medium">
               {{ getInitials(`${customer.customer.firstName} ${customer.customer.lastName}`) }}
             </div>
             <div class="ml-4 flex-1">

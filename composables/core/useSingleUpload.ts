@@ -18,7 +18,8 @@ export const useSingleUploadFile = () => {
       const res = await $_single_upload(formData) as any
 
       if (res.type !== 'ERROR') {
-        uploadResponse.value = res.data ?? []
+        uploadResponse.value = res.data ?? {}
+        console.log(res.data, 'upload es')
       } else {
         throw new Error('Error in API response')
       }

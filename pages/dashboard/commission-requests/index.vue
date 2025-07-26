@@ -52,7 +52,7 @@
                     </span>
                   </div>
                   <p class="text-sm text-gray-600 mb-2">{{ commission.subject }}</p>
-                  <p class="text-sm text-gray-500 mb-2">{{ commission.drawingType.name }}</p>
+                  <p class="text-sm text-gray-500 mb-2">{{ commission?.drawingType?.name }}</p>
                   <p class="text-sm text-gray-500 mb-3">Due: {{ formatDate(commission.deadline) }}</p>
                   <button
                     @click="openCommissionModal(commission)"
@@ -88,7 +88,7 @@
                         <div class="text-sm text-gray-900">{{ commission.subject }}</div>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">{{ commission.drawingType.name }}</div>
+                        <div class="text-sm text-gray-900">{{ commission?.drawingType?.name }}</div>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {{ formatDate(commission.deadline) }}
@@ -187,7 +187,7 @@
                           Edit
                         </button>
                         <button
-                          @click="deleteDrawingType(type._id)"
+                          @click="handleDeleteDrawingType(type._id)"
                           class="text-red-600 hover:text-red-900"
                         >
                           Delete
@@ -227,7 +227,7 @@
                 <h4 class="text-sm font-medium text-gray-900 mb-2">Request Details</h4>
                 <div class="bg-gray-50 p-4 space-y-3 leading-relaxed rounded-lg">
                   <p><strong>Subject:</strong> {{ selectedCommission.subject }}</p>
-                  <p><strong>Drawing Type:</strong> {{ selectedCommission.drawingType.name }}</p>
+                  <p><strong>Drawing Type:</strong> {{ selectedCommission?.drawingType?.name }}</p>
                   <p><strong>Deadline:</strong> {{ formatDate(selectedCommission.deadline) }}</p>
                   <p><strong>Status:</strong> 
                     <span :class="getStatusClass(selectedCommission.status)" class="px-2 py-1 text-xs rounded-full ml-2">
@@ -339,6 +339,7 @@
   <script setup lang="ts">
   import { useFetchCommissionRequests } from "@/composables/modules/commission-requests/useFetchCommissionRequests"
   import { useDeleteCommissionRequest } from "@/composables/modules/commission-requests/useDeleteCommissionRequest"
+  import { useDeleteDrawingType } from "@/composables/modules/drawing-types/useDeleteDrawingType"
   import { useCreateDrawingType } from "@/composables/modules/drawing-types/useCreateDrawingType"
   import { useFetchDrawingTypes } from "@/composables/modules/drawing-types/useFetchDrawingTypes"
   import { useUpdateDrawingType } from "@/composables/modules/drawing-types/useUpdateDrawingType"
@@ -347,6 +348,7 @@
   const { createDrawingType, loading: creatingDrawingType } = useCreateDrawingType()
   const { loading: fetchingDrawingTypes, drawingTypes: drawingTypes } = useFetchDrawingTypes()
   const { updateDrawingType, loading: updatingDrawingType } = useUpdateDrawingType()
+  const { deleteDrawingType, loading:deletingType } = useDeleteDrawingType()
   interface DrawingType {
     _id: string
     name: string
@@ -541,10 +543,11 @@
     }
   }
   
-  const deleteDrawingType = (id: string): void => {
-    if (confirm('Are you sure you want to delete this drawing type?')) {
-      drawingTypes.value = drawingTypes.value.filter(dt => dt._id !== id)
-    }
+  const handleDeleteDrawingType = async (id: string) => {
+    await deleteDrawingType(id)
+    // if (confirm('Are you sure you want to delete this drawing type?')) {
+    //   drawingTypes.value = drawingTypes.value.filter(dt => dt._id !== id)
+    // }
   }
   
   // Set page title

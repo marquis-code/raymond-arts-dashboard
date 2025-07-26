@@ -22,7 +22,7 @@
           <!-- Artist Illustration -->
           <div class="relative z-10 flex items-center justify-center h-full">
             <div class="w-64 h-64 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-xl transform rotate-3 animate-card-float">
-              <div class="h-32 bg-gradient-to-br from-pink-400 to-purple-600 rounded-lg mb-4"></div>
+              <div class="h-32 bg-gradient-to-br from-pink-400 to-green-600 rounded-lg mb-4"></div>
               <div class="h-4 w-3/4 bg-white/30 rounded-full mb-2"></div>
               <div class="h-4 w-1/2 bg-white/30 rounded-full"></div>
             </div>

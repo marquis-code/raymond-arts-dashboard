@@ -291,7 +291,7 @@ export const useAuditTrail = () => {
       case "REMOVE":
         return "bg-red-100 text-red-800"
       case "LOGIN":
-        return "bg-purple-100 text-purple-800"
+        return "bg-green-100 text-green-800"
       case "LOGOUT":
         return "bg-gray-100 text-gray-800"
       default:
@@ -307,7 +307,7 @@ export const useAuditTrail = () => {
       case "USER":
         return "bg-blue-100 text-blue-800"
       case "ORDER":
-        return "bg-purple-100 text-purple-800"
+        return "bg-green-100 text-green-800"
       case "PRODUCT":
         return "bg-emerald-100 text-emerald-800"
       case "PAYMENT":

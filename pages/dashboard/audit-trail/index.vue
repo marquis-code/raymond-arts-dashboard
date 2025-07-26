@@ -637,7 +637,7 @@
       case 'REMOVE':
         return 'badge-danger'
       case 'LOGIN':
-        return 'badge-purple'
+        return 'badge-green'
       case 'LOGOUT':
         return 'badge-gray'
       default:
@@ -653,7 +653,7 @@
       case 'USER':
         return 'badge-info'
       case 'ORDER':
-        return 'badge-purple'
+        return 'badge-green'
       case 'PRODUCT':
         return 'badge-success'
       case 'PAYMENT':
@@ -719,7 +719,7 @@
     --info: #0ea5e9;
     --warning: #f59e0b;
     --danger: #ef4444;
-    --purple: #8b5cf6;
+    --green: #8b5cf6;
     --pink: #ec4899;
     --gray: #6b7280;
     --light-gray: #f3f4f6;
@@ -1095,9 +1095,9 @@
     color: var(--danger);
   }
   
-  .badge-purple {
+  .badge-green {
     background-color: rgba(139, 92, 246, 0.1);
-    color: var(--purple);
+    color: var(--green);
   }
   
   .badge-pink {

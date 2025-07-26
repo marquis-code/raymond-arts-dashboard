@@ -91,7 +91,7 @@
                 {{ orderStats.installmentOrders }}
               </p>
 
-              <p class="text-sm text-purple-600 mt-1">
+              <p class="text-sm text-green-600 mt-1">
                 {{
                   (
                     (orderStats.installmentOrders / orderStats.totalOrders) *
@@ -102,9 +102,9 @@
             </div>
 
             <div
-              class="h-12 w-12 bg-purple-100 rounded-xl flex items-center justify-center"
+              class="h-12 w-12 bg-green-100 rounded-xl flex items-center justify-center"
             >
-              <CreditCard class="h-6 w-6 text-purple-600" />
+              <CreditCard class="h-6 w-6 text-green-600" />
             </div>
           </div>
         </div>
@@ -324,7 +324,7 @@
 
                     <span
                       v-if="order.paymentType === 'installment'"
-                      class="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full"
+                      class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full"
                     >
                       Installment
                     </span>
@@ -380,7 +380,7 @@
                   v-if="
                     order.paymentType === 'installment' && order.installmentInfo
                   "
-                  class="mt-4 p-3 bg-purple-50 rounded-lg"
+                  class="mt-4 p-3 bg-green-50 rounded-lg"
                 >
                   <div class="grid grid-cols-2 gap-2 text-sm">
                     <div>
@@ -475,7 +475,7 @@
                       <div class="flex gap-1 mt-1">
                         <span
                           v-if="order.paymentType === 'installment'"
-                          class="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full"
+                          class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full"
                         >
                           Installment
                         </span>

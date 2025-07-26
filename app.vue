@@ -8,7 +8,7 @@
       style="transition: opacity 0.8s ease-in-out;"
     >
       <!-- Artistic Background -->
-      <div class="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 opacity-90">
+      <div class="absolute inset-0 bg-gradient-to-br from-indigo-900 via-green-800 to-pink-700 opacity-90">
         <!-- Animated Particles -->
         <div v-for="i in 20" :key="i" 
           class="absolute rounded-full mix-blend-screen animate-float"

@@ -4,7 +4,7 @@
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-100/30 rounded-full blur-xl animate-pulse"></div>
       <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-100/30 rounded-full blur-xl animate-pulse delay-1000"></div>
-      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-100/20 rounded-full blur-xl animate-pulse delay-500"></div>
+      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-100/20 rounded-full blur-xl animate-pulse delay-500"></div>
     </div>
 
     <!-- Header -->

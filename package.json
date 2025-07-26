@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@cyhnkckali/vue3-color-picker": "^2.0.2",
+    "@heroicons/vue": "^2.2.0",
     "@nuxtjs/pwa": "^3.3.5",
     "@nuxtjs/tailwindcss": "^6.0.0",
     "@vueup/vue-quill": "^1.2.0",

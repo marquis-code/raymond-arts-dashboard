@@ -298,7 +298,7 @@
                  :class="detailsDrawerClasses">
               <div class="h-full flex flex-col bg-white shadow-xl overflow-y-auto">
                 <!-- Header -->
-                <div class="px-4 py-6 bg-gradient-to-r from-violet-600 to-purple-700 sm:px-6">
+                <div class="px-4 py-6 bg-gradient-to-r from-violet-600 to-green-700 sm:px-6">
                   <div class="flex items-start justify-between">
                     <h2 class="text-base font-medium text-white">Product Details</h2>
                     <div class="ml-3 h-7 flex items-center">
@@ -488,7 +488,7 @@
                  :class="editDrawerClasses">
               <div class="h-full flex flex-col bg-white shadow-xl overflow-y-auto">
                 <!-- Header -->
-                <div class="px-4 py-6 bg-gradient-to-r from-violet-600 to-purple-700 sm:px-6">
+                <div class="px-4 py-6 bg-gradient-to-r from-violet-600 to-green-700 sm:px-6">
                   <div class="flex items-start justify-between">
                     <h2 class="text-base font-medium text-white">Edit Product</h2>
                     <div class="ml-3 h-7 flex items-center">

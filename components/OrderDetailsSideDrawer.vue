@@ -12,7 +12,7 @@
           <div class="absolute right-0 top-0 h-full w-full max-w-2xl bg-white shadow-2xl transform transition-transform duration-300 ease-in-out">
             <div class="flex flex-col h-full">
               <!-- Header -->
-              <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-violet-600 to-purple-600 text-white">
+              <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-violet-600 to-green-600 text-white">
                 <div class="flex items-center space-x-3">
                   <div class="h-10 w-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                     <ShoppingBag class="h-5 w-5" />
@@ -40,7 +40,7 @@
                         <span class="px-4 py-2 text-sm font-semibold rounded-full" :class="getStatusClass(order.status)">
                           {{ capitalizeFirstLetter(order.status) }}
                         </span>
-                        <span v-if="order.paymentType === 'installment'" class="px-3 py-1 text-xs bg-purple-100 text-purple-800 rounded-full">
+                        <span v-if="order.paymentType === 'installment'" class="px-3 py-1 text-xs bg-green-100 text-green-800 rounded-full">
                           Installment Plan
                         </span>
                       </div>
@@ -126,27 +126,27 @@
                         </div>
                         
                         <div v-if="order.paymentType === 'installment' && order.installmentInfo" class="space-y-3">
-                          <div class="bg-purple-50 rounded-lg p-4">
-                            <h4 class="font-semibold text-purple-900 mb-3">Installment Details</h4>
+                          <div class="bg-green-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-green-900 mb-3">Installment Details</h4>
                             <div class="space-y-2 text-sm">
                               <div class="flex justify-between">
-                                <span class="text-purple-700">Down Payment:</span>
+                                <span class="text-green-700">Down Payment:</span>
                                 <span class="font-semibold">${{ order.installmentInfo.downPayment.toFixed(2) }}</span>
                               </div>
                               <div class="flex justify-between">
-                                <span class="text-purple-700">Installments:</span>
+                                <span class="text-green-700">Installments:</span>
                                 <span class="font-semibold">{{ order.installmentInfo.numberOfInstallments }} payments</span>
                               </div>
                               <div class="flex justify-between">
-                                <span class="text-purple-700">Payment Amount:</span>
+                                <span class="text-green-700">Payment Amount:</span>
                                 <span class="font-semibold">${{ order.installmentInfo.installmentAmount.toFixed(2) }}</span>
                               </div>
                               <div class="flex justify-between">
-                                <span class="text-purple-700">Frequency:</span>
+                                <span class="text-green-700">Frequency:</span>
                                 <span class="font-semibold">{{ capitalizeFirstLetter(order.installmentInfo.paymentFrequency) }}</span>
                               </div>
                               <div class="flex justify-between">
-                                <span class="text-purple-700">Interest Rate:</span>
+                                <span class="text-green-700">Interest Rate:</span>
                                 <span class="font-semibold">{{ order.installmentInfo.interestRate }}%</span>
                               </div>
                             </div>
