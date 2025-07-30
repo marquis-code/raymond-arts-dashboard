@@ -233,6 +233,7 @@ const sidebarSections = [
       { name: 'Promo Sales', href: '/dashboard/promosales', icon: Binoculars },
       { name: 'Commission Requests', href: '/dashboard/commission-requests', icon: MailQuestion },
       { name: 'Content Management', href: '/dashboard/content', icon: MailQuestion },
+      { name: 'Reviews Management', href: '/dashboard/reviews', icon: MailQuestion },
       { 
         name: 'Course Management', 
         href: '/dashboard/courses', 
