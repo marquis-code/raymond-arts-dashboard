@@ -96,7 +96,7 @@
                   (
                     (orderStats.installmentOrders / orderStats.totalOrders) *
                     100
-                  ).toFixed(1)
+                  )?.toFixed(1)
                 }}% of total
               </p>
             </div>
@@ -358,7 +358,7 @@
                     </p>
 
                     <p class="text-lg font-bold text-gray-900">
-                      ${{ order.total.toFixed(2) }}
+                      ${{ order?.total?.toFixed(2) }}
                     </p>
                   </div>
 
@@ -367,11 +367,11 @@
                     class="text-right"
                   >
                     <p class="text-sm text-gray-500">
-                      Paid: ${{ order.paidAmount?.toFixed(2) || "0.00" }}
+                      Paid: ${{ order?.paidAmount?.toFixed(2) || "0.00" }}
                     </p>
 
                     <p class="text-sm font-medium text-orange-600">
-                      Remaining: ${{ (order.remainingBalance || 0).toFixed(2) }}
+                      Remaining: ${{ (order?.remainingBalance || 0)?.toFixed(2) }}
                     </p>
                   </div>
                 </div>
@@ -388,7 +388,7 @@
 
                       <p class="font-medium">
                         ${{
-                          order.installmentInfo.installmentAmount.toFixed(2)
+                          order?.installmentInfo?.installmentAmount?.toFixed(2)
                         }}
                       </p>
                     </div>
@@ -516,17 +516,17 @@
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div>
                       <p class="text-sm font-bold text-gray-900">
-                        ${{ order.total.toFixed(2) }}
+                        ${{ order?.total?.toFixed(2) }}
                       </p>
 
                       <div v-if="order.paymentType === 'installment'">
                         <p class="text-xs text-green-600">
-                          Paid: ${{ order.paidAmount?.toFixed(2) || "0.00" }}
+                          Paid: ${{ order?.paidAmount?.toFixed(2) || "0.00" }}
                         </p>
 
                         <p class="text-xs text-orange-600">
                           Remaining: ${{
-                            (order.remainingBalance || 0).toFixed(2)
+                            (order?.remainingBalance || 0).toFixed(2)
                           }}
                         </p>
                       </div>
