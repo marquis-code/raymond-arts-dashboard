@@ -66,7 +66,7 @@ export const product_api = {
     return GATEWAY_ENDPOINT.delete(`/products/${id}`);
   },
   $_get_product_by_id(id: string) {
-    return GATEWAY_ENDPOINT.post(`/products/${id}`);
+    return GATEWAY_ENDPOINT.get(`/products/${id}`);
   },
   $_upload_product_image(id: string) {
     return GATEWAY_ENDPOINT.post(`/products/${id}/images`);

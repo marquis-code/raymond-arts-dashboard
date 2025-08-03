@@ -36,10 +36,15 @@ export const review_api = {
     return GATEWAY_ENDPOINT.patch(`/reviews/${id}/reject`, { rejectionReason });
   },
 
-    // update a review statua (admin only)
-    $_update_review_status(id: string, status: string) {
-        return GATEWAY_ENDPOINT.patch(`/reviews/${id}/status`, { rejectionReason });
-      },
+    // Reject a review (admin only)
+    $_approve_review(id: string) {
+      return GATEWAY_ENDPOINT.patch(`/reviews/${id}/approve`);
+    },
+
+    // // update a review statua (admin only)
+    // $_update_review_status(id: string, status: string) {
+    //     return GATEWAY_ENDPOINT.patch(`/reviews/${id}/status`, { rejectionReason });
+    //   },
 
   // Delete a review
   $_delete_review(id: string) {

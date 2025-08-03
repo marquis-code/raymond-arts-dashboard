@@ -358,7 +358,7 @@ const handleStatusChange = (contentId: string, status: string) => {
 }
 
 const getStatusBadgeClass = (status: string) => {
-  const statusInfo = props.contentStatuses.find(s => s.value === status)
+  const statusInfo = props?.contentStatuses?.find(s => s?.value === status)
   const color = statusInfo?.color || 'gray'
   
   return {

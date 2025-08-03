@@ -1,276 +1,504 @@
 <template>
-    <div class="space-y-6">
-      <!-- Header with actions -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  <div class="space-y-6">
+    <!-- Header with actions -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">User Management</h1>
+        <p class="text-gray-500 mt-1">Manage your users and their account status</p>
+      </div>
+      <div class="flex gap-3">
+        <div class="relative">
+          <input 
+            type="text" 
+            v-model="searchQuery" 
+            placeholder="Search users..." 
+            class="pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+          />
+          <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        </div>
+        <button 
+          @click="refreshUsers"
+          :disabled="loading"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+        >
+          <RefreshCw class="h-4 w-4 mr-2" :class="{ 'animate-spin': loading }" />
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- User Filters -->
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Contacts Management</h1>
-          <p class="text-gray-500 mt-1">Manage your customers, collectors, and business contacts</p>
-        </div>
-        <div class="flex gap-3">
-          <div class="relative">
-            <input 
-              type="text" 
-              v-model="searchQuery" 
-              placeholder="Search contacts..." 
-              class="pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-            />
-            <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          </div>
-          <button @click="isAddContactModalOpen = true" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500">
-            <Plus class="h-4 w-4 mr-2" />
-            Add Contact
-          </button>
-        </div>
-      </div>
-  
-      <!-- Contact Filters -->
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label for="type-filter" class="block text-sm font-medium text-gray-700 mb-1">Contact Type</label>
-            <select id="type-filter" v-model="filters.type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
-              <option value="all">All Types</option>
-              <option value="customer">Customer</option>
-              <option value="collector">Collector</option>
-              <option value="gallery">Gallery</option>
-              <option value="supplier">Supplier</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label for="sort-by" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
-            <select id="sort-by" v-model="filters.sortBy" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
-              <option value="name-asc">Name (A-Z)</option>
-              <option value="name-desc">Name (Z-A)</option>
-              <option value="date-asc">Date Added (Oldest)</option>
-              <option value="date-desc">Date Added (Newest)</option>
-            </select>
-          </div>
-          <div>
-            <label for="tag-filter" class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-            <select id="tag-filter" v-model="filters.tag" class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
-              <option value="all">All Tags</option>
-              <option value="vip">VIP</option>
-              <option value="repeat">Repeat Customer</option>
-              <option value="new">New Contact</option>
-              <option value="lead">Lead</option>
-            </select>
-          </div>
-        </div>
-        <div class="mt-4 flex justify-end space-x-3">
-          <button @click="resetFilters" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500">
-            Reset
-          </button>
-          <button @click="applyFilters" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500">
-            Apply Filters
-          </button>
-        </div>
-      </div>
-  
-      <!-- Contacts Grid/List View Toggle -->
-      <div class="flex justify-end">
-        <div class="inline-flex rounded-md shadow-sm">
-          <button 
-            @click="viewMode = 'grid'" 
-            class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium focus:z-10 focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500"
-            :class="viewMode === 'grid' ? 'text-violet-700 bg-violet-50' : 'text-gray-700 hover:bg-gray-50'"
+          <label for="role-filter" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+          <select 
+            id="role-filter" 
+            v-model="filters.role" 
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"
           >
-            <Grid class="h-4 w-4" />
+            <option value="all">All Roles</option>
+            <option value="customer">Customer</option>
+            <option value="admin">Admin</option>
+            <option value="moderator">Moderator</option>
+          </select>
+        </div>
+        <div>
+          <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select 
+            id="status-filter" 
+            v-model="filters.status" 
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div>
+          <label for="verification-filter" class="block text-sm font-medium text-gray-700 mb-1">Email Status</label>
+          <select 
+            id="verification-filter" 
+            v-model="filters.emailVerified" 
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"
+          >
+            <option value="all">All</option>
+            <option value="verified">Verified</option>
+            <option value="unverified">Unverified</option>
+          </select>
+        </div>
+        <div>
+          <label for="sort-by" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+          <select 
+            id="sort-by" 
+            v-model="filters.sortBy" 
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"
+          >
+            <option value="name-asc">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+            <option value="date-asc">Joined (Oldest)</option>
+            <option value="date-desc">Joined (Newest)</option>
+            <option value="login-desc">Last Login</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-4 flex justify-end space-x-3">
+        <button 
+          @click="resetFilters" 
+          class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-all duration-200"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- View Toggle -->
+    <div class="flex justify-end">
+      <div class="inline-flex rounded-md shadow-sm">
+        <button 
+          @click="viewMode = 'grid'" 
+          class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium focus:z-10 focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500 transition-all duration-200"
+          :class="viewMode === 'grid' ? 'text-violet-700 bg-violet-50' : 'text-gray-700 hover:bg-gray-50'"
+        >
+          <Grid class="h-4 w-4" />
+        </button>
+        <button 
+          @click="viewMode = 'list'" 
+          class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium focus:z-10 focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500 transition-all duration-200"
+          :class="viewMode === 'list' ? 'text-violet-700 bg-violet-50' : 'text-gray-700 hover:bg-gray-50'"
+        >
+          <List class="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="loading && !users.length" class="flex items-center justify-center py-12">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 mx-auto mb-4"></div>
+        <p class="text-gray-500">Loading users...</p>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div v-else-if="!loading && !filteredUsers.length" class="text-center py-12">
+      <Users class="h-16 w-16 text-gray-300 mx-auto mb-4" />
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+      <p class="text-gray-500">Try adjusting your search or filter criteria.</p>
+    </div>
+
+    <!-- Grid View -->
+    <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div 
+        v-for="user in filteredUsers" 
+        :key="user._id || user.id" 
+        class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-md hover:scale-105"
+      >
+        <div class="p-6">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center">
+              <div class="h-12 w-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                <img 
+                  :src="user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName || user.email)}&background=6366f1&color=fff`" 
+                  :alt="user.fullName || user.email" 
+                  class="h-full w-full object-cover" 
+                />
+              </div>
+              <div class="ml-4">
+                <h3 class="text-lg font-medium text-gray-900">
+                  {{ user.fullName || `${user.firstName} ${user.lastName}`.trim() || 'No Name' }}
+                </h3>
+                <p class="text-sm text-gray-500 capitalize">{{ user.role }}</p>
+              </div>
+            </div>
+            <div class="flex space-x-1">
+              <button 
+                @click="viewUserDetails(user)" 
+                class="text-gray-400 hover:text-violet-500 transition-colors duration-200"
+                title="View Details"
+              >
+                <Eye class="h-5 w-5" />
+              </button>
+              <button 
+                @click="toggleUserStatus(user)" 
+                :class="user.isActive ? 'text-gray-400 hover:text-red-500' : 'text-gray-400 hover:text-green-500'"
+                class="transition-colors duration-200"
+                :title="user.isActive ? 'Deactivate User' : 'Activate User'"
+              >
+                <UserX v-if="user.isActive" class="h-5 w-5" />
+                <UserCheck v-else class="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center text-sm">
+              <Mail class="h-4 w-4 text-gray-400 mr-2" />
+              <span class="text-gray-600">{{ user.email }}</span>
+              <CheckCircle v-if="user.isEmailVerified" class="h-4 w-4 text-green-500 ml-2" title="Email Verified" />
+              <XCircle v-else class="h-4 w-4 text-red-500 ml-2" title="Email Not Verified" />
+            </div>
+            <div class="flex items-center text-sm">
+              <Calendar class="h-4 w-4 text-gray-400 mr-2" />
+              <span class="text-gray-600">Joined {{ formatDate(user.createdAt) }}</span>
+            </div>
+            <div v-if="user.lastLoginAt" class="flex items-center text-sm">
+              <Clock class="h-4 w-4 text-gray-400 mr-2" />
+              <span class="text-gray-600">Last login {{ formatDate(user.lastLoginAt) }}</span>
+            </div>
+          </div>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span 
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+              :class="user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+            >
+              {{ user.isActive ? 'Active' : 'Inactive' }}
+            </span>
+            <span 
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+              :class="user.isEmailVerified ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'"
+            >
+              {{ user.isEmailVerified ? 'Verified' : 'Unverified' }}
+            </span>
+            <span 
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 capitalize"
+            >
+              {{ user.role }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div v-else-if="viewMode === 'list'" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                User
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Role
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Joined
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Last Login
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr 
+              v-for="user in filteredUsers" 
+              :key="user._id || user.id" 
+              class="hover:bg-gray-50 transition-colors duration-200"
+            >
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 flex-shrink-0">
+                    <img 
+                      :src="user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName || user.email)}&background=6366f1&color=fff`" 
+                      :alt="user.fullName || user.email" 
+                      class="h-10 w-10 rounded-full object-cover" 
+                    />
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">
+                      {{ user.fullName || `${user.firstName} ${user.lastName}`.trim() || 'No Name' }}
+                    </div>
+                    <div class="text-sm text-gray-500 flex items-center">
+                      {{ user.email }}
+                      <CheckCircle v-if="user.isEmailVerified" class="h-3 w-3 text-green-500 ml-1" />
+                      <XCircle v-else class="h-3 w-3 text-red-500 ml-1" />
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 capitalize">
+                  {{ user.role }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span 
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                  :class="user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                >
+                  {{ user.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ formatDate(user.createdAt) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Never' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex justify-end space-x-2">
+                  <button 
+                    @click="viewUserDetails(user)" 
+                    class="text-violet-600 hover:text-violet-900 transition-colors duration-200"
+                    title="View Details"
+                  >
+                    <Eye class="h-4 w-4" />
+                  </button>
+                  <button 
+                    @click="toggleUserStatus(user)" 
+                    :class="user.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'"
+                    class="transition-colors duration-200"
+                    :title="user.isActive ? 'Deactivate User' : 'Activate User'"
+                  >
+                    <UserX v-if="user.isActive" class="h-4 w-4" />
+                    <UserCheck v-else class="h-4 w-4" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="flex-1 flex justify-between sm:hidden">
+          <button 
+            :disabled="currentPage <= 1"
+            @click="currentPage--"
+            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          >
+            Previous
           </button>
           <button 
-            @click="viewMode = 'list'" 
-            class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium focus:z-10 focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500"
-            :class="viewMode === 'list' ? 'text-violet-700 bg-violet-50' : 'text-gray-700 hover:bg-gray-50'"
+            :disabled="currentPage >= totalPages"
+            @click="currentPage++"
+            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
-            <List class="h-4 w-4" />
+            Next
           </button>
         </div>
-      </div>
-  
-      <!-- Grid View -->
-      <div v-if="viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="contact in filteredContacts" :key="contact.id" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-md">
-          <div class="p-6">
-            <div class="flex items-start justify-between">
-              <div class="flex items-center">
-                <div class="h-12 w-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                  <img :src="contact.avatar" :alt="contact.name" class="h-full w-full object-cover" />
-                </div>
-                <div class="ml-4">
-                  <h3 class="text-lg font-medium text-gray-900">{{ contact.name }}</h3>
-                  <p class="text-sm text-gray-500">{{ contact.type }}</p>
-                </div>
-              </div>
-              <div class="flex space-x-1">
-                <button @click="editContact(contact)" class="text-gray-400 hover:text-gray-500">
-                  <Edit class="h-5 w-5" />
-                </button>
-                <button @click="deleteContact(contact)" class="text-gray-400 hover:text-red-500">
-                  <Trash2 class="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-            
-            <div class="mt-4 space-y-2">
-              <div v-if="contact.email" class="flex items-center text-sm">
-                <Mail class="h-4 w-4 text-gray-400 mr-2" />
-                <span class="text-gray-600">{{ contact.email }}</span>
-              </div>
-              <div v-if="contact.phone" class="flex items-center text-sm">
-                <Phone class="h-4 w-4 text-gray-400 mr-2" />
-                <span class="text-gray-600">{{ contact.phone }}</span>
-              </div>
-              <div v-if="contact.address" class="flex items-center text-sm">
-                <MapPin class="h-4 w-4 text-gray-400 mr-2" />
-                <span class="text-gray-600">{{ contact.address }}</span>
-              </div>
-            </div>
-            
-            <div class="mt-4 flex flex-wrap gap-2">
-              <span v-for="(tag, tagIndex) in contact.tags" :key="tagIndex" 
-                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                :class="{
-                  'bg-violet-100 text-violet-800': tag === 'vip',
-                  'bg-green-100 text-green-800': tag === 'repeat',
-                  'bg-blue-100 text-blue-800': tag === 'new',
-                  'bg-yellow-100 text-yellow-800': tag === 'lead'
-                }">
-                {{ tag }}
-              </span>
-            </div>
-            
-            <div class="mt-4 pt-4 border-t border-gray-100">
-              <div class="flex justify-between">
-                <span class="text-xs text-gray-500">Added: {{ contact.dateAdded }}</span>
-                <button @click="viewContactDetails(contact)" class="text-sm font-medium text-violet-600 hover:text-violet-700">
-                  View Details
-                </button>
-              </div>
-            </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm text-gray-700">
+              Showing <span class="font-medium">{{ startIndex }}</span> to <span class="font-medium">{{ endIndex }}</span> of <span class="font-medium">{{ filteredUsers.length }}</span> results
+            </p>
+          </div>
+          <div>
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <button 
+                :disabled="currentPage <= 1"
+                @click="currentPage--"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
+                <ChevronLeft class="h-5 w-5" />
+              </button>
+              <button 
+                v-for="page in visiblePages" 
+                :key="page"
+                @click="currentPage = page"
+                class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-all duration-200"
+                :class="page === currentPage 
+                  ? 'border-violet-500 bg-violet-50 text-violet-600' 
+                  : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'"
+              >
+                {{ page }}
+              </button>
+              <button 
+                :disabled="currentPage >= totalPages"
+                @click="currentPage++"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
+                <ChevronRight class="h-5 w-5" />
+              </button>
+            </nav>
           </div>
         </div>
       </div>
-  
-      <!-- List View -->
-      <div v-if="viewMode === 'list'" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Phone
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tags
-                </th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="contact in filteredContacts" :key="contact.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="h-10 w-10 flex-shrink-0">
-                      <img :src="contact.avatar" :alt="contact.name" class="h-10 w-10 rounded-full object-cover" />
+    </div>
+
+    <!-- User Details Modal -->
+    <transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
+      <div v-if="selectedUser" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+          <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div class="absolute inset-0 bg-gray-500 opacity-75" @click="selectedUser = null"></div>
+          </div>
+          <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+          <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <div class="sm:flex sm:items-start">
+                <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                  <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">User Details</h3>
+                    <button 
+                      @click="selectedUser = null"
+                      class="text-gray-400 hover:text-gray-500 transition-colors duration-200"
+                    >
+                      <X class="h-6 w-6" />
+                    </button>
+                  </div>
+
+                  <div class="flex items-center mb-6">
+                    <div class="h-20 w-20 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                      <img 
+                        :src="selectedUser.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedUser.fullName || selectedUser.email)}&background=6366f1&color=fff&size=200`" 
+                        :alt="selectedUser.fullName || selectedUser.email" 
+                        class="h-full w-full object-cover" 
+                      />
                     </div>
-                    <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900">{{ contact.name }}</div>
-                      <div class="text-xs text-gray-500">Added: {{ contact.dateAdded }}</div>
+                    <div class="ml-6">
+                      <h3 class="text-2xl font-medium text-gray-900">
+                        {{ selectedUser.fullName || `${selectedUser.firstName} ${selectedUser.lastName}`.trim() || 'No Name' }}
+                      </h3>
+                      <p class="text-sm text-gray-500 capitalize">{{ selectedUser.role }}</p>
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        <span 
+                          class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                          :class="selectedUser.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                        >
+                          {{ selectedUser.isActive ? 'Active' : 'Inactive' }}
+                        </span>
+                        <span 
+                          class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                          :class="selectedUser.isEmailVerified ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'"
+                        >
+                          {{ selectedUser.isEmailVerified ? 'Email Verified' : 'Email Unverified' }}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ contact.type }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ contact.email }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ contact.phone }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex flex-wrap gap-1">
-                    <span v-for="(tag, tagIndex) in contact.tags" :key="tagIndex" 
-                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                      :class="{
-                        'bg-violet-100 text-violet-800': tag === 'vip',
-                        'bg-green-100 text-green-800': tag === 'repeat',
-                        'bg-blue-100 text-blue-800': tag === 'new',
-                        'bg-yellow-100 text-yellow-800': tag === 'lead'
-                      }">
-                      {{ tag }}
-                    </span>
+
+                  <div class="border-t border-gray-200 py-6">
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                      <div class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">Email</dt>
+                        <dd class="mt-1 text-sm text-gray-900 flex items-center">
+                          {{ selectedUser.email }}
+                          <CheckCircle v-if="selectedUser.isEmailVerified" class="h-4 w-4 text-green-500 ml-2" />
+                          <XCircle v-else class="h-4 w-4 text-red-500 ml-2" />
+                        </dd>
+                      </div>
+                      <div class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">User ID</dt>
+                        <dd class="mt-1 text-sm text-gray-900 font-mono">{{ selectedUser._id || selectedUser.id }}</dd>
+                      </div>
+                      <div class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">Role</dt>
+                        <dd class="mt-1 text-sm text-gray-900 capitalize">{{ selectedUser.role }}</dd>
+                      </div>
+                      <div class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">Account Status</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ selectedUser.isActive ? 'Active' : 'Inactive' }}</dd>
+                      </div>
+                      <div class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">Date Joined</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ formatDate(selectedUser.createdAt) }}</dd>
+                      </div>
+                      <div class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">Last Login</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                          {{ selectedUser.lastLoginAt ? formatDate(selectedUser.lastLoginAt) : 'Never logged in' }}
+                        </dd>
+                      </div>
+                      <div v-if="selectedUser.googleId" class="sm:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Google Account</dt>
+                        <dd class="mt-1 text-sm text-gray-900">Connected ({{ selectedUser.googleId }})</dd>
+                      </div>
+                    </dl>
                   </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex justify-end space-x-2">
-                    <button @click="viewContactDetails(contact)" class="text-violet-600 hover:text-violet-900">
-                      <Eye class="h-4 w-4" />
-                    </button>
-                    <button @click="editContact(contact)" class="text-blue-600 hover:text-blue-900">
-                      <Edit class="h-4 w-4" />
-                    </button>
-                    <button @click="deleteContact(contact)" class="text-red-600 hover:text-red-900">
-                      <Trash2 class="h-4 w-4" />
-                    </button>
+
+                  <div class="border-t border-gray-200 py-6">
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">Account Actions</h4>
+                    <div class="flex space-x-3">
+                      <button 
+                        @click="toggleUserStatus(selectedUser)"
+                        :disabled="deactivateLoading"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        :class="selectedUser.isActive 
+                          ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500' 
+                          : 'bg-green-600 hover:bg-green-700 focus:ring-green-500'"
+                      >
+                        <UserX v-if="selectedUser.isActive && !deactivateLoading" class="h-4 w-4 mr-2" />
+                        <UserCheck v-else-if="!selectedUser.isActive && !deactivateLoading" class="h-4 w-4 mr-2" />
+                        <div v-else class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        {{ deactivateLoading ? 'Processing...' : (selectedUser.isActive ? 'Deactivate User' : 'Activate User') }}
+                      </button>
+                    </div>
                   </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        <!-- Pagination -->
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-          <div class="flex-1 flex justify-between sm:hidden">
-            <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-              Previous
-            </button>
-            <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-              Next
-            </button>
-          </div>
-          <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p class="text-sm text-gray-700">
-                Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">{{ contacts.length }}</span> results
-              </p>
-            </div>
-            <div>
-              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <span class="sr-only">Previous</span>
-                  <ChevronLeft class="h-5 w-5" />
-                </button>
-                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-violet-50 text-sm font-medium text-violet-600 hover:bg-violet-100">
-                  1
-                </button>
-                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                  2
-                </button>
-                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <span class="sr-only">Next</span>
-                  <ChevronRight class="h-5 w-5" />
-                </button>
-              </nav>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-  
-      <!-- Add/Edit Contact Modal -->
-      <div v-if="isAddContactModalOpen || isEditContactModalOpen" class="fixed inset-0 z-50 overflow-y-auto">
+    </transition>
+
+    <!-- Confirmation Modal -->
+    <transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
+      <div v-if="showConfirmModal" class="fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <div class="fixed inset-0 transition-opacity" aria-hidden="true">
             <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -279,504 +507,284 @@
           <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div class="sm:flex sm:items-start">
-                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                <div 
+                  class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10"
+                  :class="confirmAction?.type === 'deactivate' ? 'bg-red-100' : 'bg-green-100'"
+                >
+                  <AlertTriangle 
+                    v-if="confirmAction?.type === 'deactivate'" 
+                    class="h-6 w-6 text-red-600" 
+                  />
+                  <CheckCircle 
+                    v-else 
+                    class="h-6 w-6 text-green-600" 
+                  />
+                </div>
+                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                   <h3 class="text-lg leading-6 font-medium text-gray-900">
-                    {{ isEditContactModalOpen ? 'Edit Contact' : 'Add New Contact' }}
+                    {{ confirmAction?.type === 'deactivate' ? 'Deactivate User' : 'Activate User' }}
                   </h3>
-                  <div class="mt-4 space-y-4">
-                    <div>
-                      <label for="contact-name" class="block text-sm font-medium text-gray-700">Name</label>
-                      <input type="text" id="contact-name" v-model="currentContact.name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
-                    </div>
-                    <div>
-                      <label for="contact-type" class="block text-sm font-medium text-gray-700">Contact Type</label>
-                      <select id="contact-type" v-model="currentContact.type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]">
-                        <option value="customer">Customer</option>
-                        <option value="collector">Collector</option>
-                        <option value="gallery">Gallery</option>
-                        <option value="supplier">Supplier</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label for="contact-email" class="block text-sm font-medium text-gray-700">Email</label>
-                      <input type="email" id="contact-email" v-model="currentContact.email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
-                    </div>
-                    <div>
-                      <label for="contact-phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                      <input type="tel" id="contact-phone" v-model="currentContact.phone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]" />
-                    </div>
-                    <div>
-                      <label for="contact-address" class="block text-sm font-medium text-gray-700">Address</label>
-                      <textarea id="contact-address" v-model="currentContact.address" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"></textarea>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-                      <div class="flex flex-wrap gap-2">
-                        <button 
-                          v-for="tag in availableTags" 
-                          :key="tag"
-                          @click="toggleTag(tag)"
-                          class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                          :class="{
-                            'bg-violet-100 text-violet-800 border-2 border-violet-300': currentContact.tags.includes(tag) && tag === 'vip',
-                            'bg-green-100 text-green-800 border-2 border-green-300': currentContact.tags.includes(tag) && tag === 'repeat',
-                            'bg-blue-100 text-blue-800 border-2 border-blue-300': currentContact.tags.includes(tag) && tag === 'new',
-                            'bg-yellow-100 text-yellow-800 border-2 border-yellow-300': currentContact.tags.includes(tag) && tag === 'lead',
-                            'bg-gray-100 text-gray-800': !currentContact.tags.includes(tag)
-                          }"
-                        >
-                          {{ tag }}
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label for="contact-notes" class="block text-sm font-medium text-gray-700">Notes</label>
-                      <textarea id="contact-notes" v-model="currentContact.notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-all duration-200 p-3 outline-none border-[0.5px]"></textarea>
-                    </div>
+                  <div class="mt-2">
+                    <p class="text-sm text-gray-500">
+                      Are you sure you want to {{ confirmAction?.type === 'deactivate' ? 'deactivate' : 'activate' }} 
+                      <span class="font-medium">{{ confirmAction?.user?.fullName || confirmAction?.user?.email }}</span>?
+                      {{ confirmAction?.type === 'deactivate' 
+                        ? 'They will no longer be able to access their account.' 
+                        : 'They will regain access to their account.' 
+                      }}
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-              <button @click="saveContact" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-violet-600 text-base font-medium text-white hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:ml-3 sm:w-auto sm:text-sm">
-                {{ isEditContactModalOpen ? 'Update Contact' : 'Add Contact' }}
+              <button 
+                @click="confirmStatusChange"
+                :disabled="deactivateLoading"
+                type="button" 
+                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                :class="confirmAction?.type === 'deactivate' 
+                  ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500' 
+                  : 'bg-green-600 hover:bg-green-700 focus:ring-green-500'"
+              >
+                <div v-if="deactivateLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                {{ deactivateLoading ? 'Processing...' : (confirmAction?.type === 'deactivate' ? 'Deactivate' : 'Activate') }}
               </button>
-              <button @click="closeContactModal" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+              <button 
+                @click="cancelStatusChange"
+                :disabled="deactivateLoading"
+                type="button" 
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Cancel
               </button>
             </div>
           </div>
         </div>
       </div>
-  
-      <!-- View Contact Details Modal -->
-      <div v-if="selectedContact" class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-          <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-          </div>
-          <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-          <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <div class="sm:flex sm:items-start">
-                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                  <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">
-                      Contact Details
-                    </h3>
-                    <div class="flex space-x-2">
-                      <button @click="editContact(selectedContact)" class="text-blue-600 hover:text-blue-900">
-                        <Edit class="h-4 w-4" />
-                      </button>
-                      <button @click="deleteContact(selectedContact)" class="text-red-600 hover:text-red-900">
-                        <Trash2 class="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div class="flex items-center mb-6">
-                    <div class="h-16 w-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                      <img :src="selectedContact.avatar" :alt="selectedContact.name" class="h-full w-full object-cover" />
-                    </div>
-                    <div class="ml-4">
-                      <h3 class="text-xl font-medium text-gray-900">{{ selectedContact.name }}</h3>
-                      <p class="text-sm text-gray-500">{{ selectedContact.type }}</p>
-                      <div class="mt-1 flex flex-wrap gap-1">
-                        <span v-for="(tag, tagIndex) in selectedContact.tags" :key="tagIndex" 
-                          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                          :class="{
-                            'bg-violet-100 text-violet-800': tag === 'vip',
-                            'bg-green-100 text-green-800': tag === 'repeat',
-                            'bg-blue-100 text-blue-800': tag === 'new',
-                            'bg-yellow-100 text-yellow-800': tag === 'lead'
-                          }">
-                          {{ tag }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="border-t border-gray-200 py-4">
-                    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-                      <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-500">Email</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ selectedContact.email }}</dd>
-                      </div>
-                      <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-500">Phone</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ selectedContact.phone }}</dd>
-                      </div>
-                      <div class="sm:col-span-2">
-                        <dt class="text-sm font-medium text-gray-500">Address</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ selectedContact.address }}</dd>
-                      </div>
-                      <div class="sm:col-span-2">
-                        <dt class="text-sm font-medium text-gray-500">Notes</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ selectedContact.notes || 'No notes available.' }}</dd>
-                      </div>
-                    </dl>
-                  </div>
-                  
-                  <div class="border-t border-gray-200 py-4">
-                    <h4 class="text-sm font-medium text-gray-900 mb-3">
-                      Recent Activity
-                    </h4>
-                    <div class="space-y-3">
-                      <div v-for="(activity, index) in selectedContact.activity" :key="index" class="flex items-start">
-                        <div class="flex-shrink-0">
-                          <component :is="getActivityIcon(activity.type)" class="h-5 w-5 text-gray-400" />
-                        </div>
-                        <div class="ml-3">
-                          <p class="text-sm text-gray-900">{{ activity.description }}</p>
-                          <p class="text-xs text-gray-500">{{ activity.date }}</p>
-                        </div>
-                      </div>
-                      <div v-if="!selectedContact.activity || selectedContact.activity.length === 0" class="text-sm text-gray-500">
-                        No recent activity.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-              <button @click="selectedContact = null" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:mt-0 sm:w-auto sm:text-sm">
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </template>
-  
-  <script setup lang="ts">
-  import { ref, computed } from 'vue'
-  import { 
-    Search, Plus, Eye, Edit, Trash2, Grid, List,
-    Mail, Phone, MapPin, ChevronLeft, ChevronRight,
-    ShoppingCart, CreditCard, MessageSquare, Calendar
-  } from 'lucide-vue-next'
-  
-  // View mode (grid or list)
-  const viewMode = ref('grid')
-  
-  // Search and filters
-  const searchQuery = ref('')
-  const filters = ref({
-    type: 'all',
-    sortBy: 'name-asc',
-    tag: 'all'
-  })
-  
-  // Modal states
-  const isAddContactModalOpen = ref(false)
-  const isEditContactModalOpen = ref(false)
-  const selectedContact = ref(null as any)
-  
-  // Available tags
-  const availableTags = ['vip', 'repeat', 'new', 'lead']
-  
-  // Current contact being edited or created
-  const currentContact = ref({
-    id: '',
-    name: '',
-    type: 'customer',
-    email: '',
-    phone: '',
-    address: '',
-    tags: [] as string[],
-    notes: '',
-    avatar: '',
-    dateAdded: '',
-    activity: [] as any[]
-  })
-  
-  // Sample contacts data
-  const contacts = ref([
-    {
-      id: '1',
-      name: 'John Doe',
-      type: 'customer',
-      email: 'john.doe@example.com',
-      phone: '(555) 123-4567',
-      address: '123 Main St, New York, NY 10001',
-      tags: ['vip', 'repeat'],
-      notes: 'Interested in abstract art and modern sculptures.',
-      avatar: 'https://i.pravatar.cc/300?img=1',
-      dateAdded: '2025-04-01',
-      activity: [
-        { type: 'purchase', description: 'Purchased "Abstract Sunset" painting', date: '2025-04-02' },
-        { type: 'email', description: 'Sent follow-up email about upcoming exhibition', date: '2025-03-28' },
-        { type: 'note', description: 'Expressed interest in commissioning a new piece', date: '2025-03-15' }
-      ]
-    },
-    {
-      id: '2',
-      name: 'Sarah Smith',
-      type: 'collector',
-      email: 'sarah.smith@example.com',
-      phone: '(555) 987-6543',
-      address: '456 Oak Ave, San Francisco, CA 94102',
-      tags: ['vip'],
-      notes: 'Serious collector of contemporary art. Prefers large-scale works.',
-      avatar: 'https://i.pravatar.cc/300?img=2',
-      dateAdded: '2025-03-20',
-      activity: [
-        { type: 'purchase', description: 'Purchased "Urban Landscape" photograph', date: '2025-03-25' },
-        { type: 'meeting', description: 'Met at the Spring Art Fair', date: '2025-03-10' }
-      ]
-    },
-    {
-      id: '3',
-      name: 'Michael Johnson',
-      type: 'customer',
-      email: 'michael.johnson@example.com',
-      phone: '(555) 456-7890',
-      address: '789 Pine St, Chicago, IL 60601',
-      tags: ['new'],
-      notes: 'New customer referred by Sarah Smith. Interested in portrait commissions.',
-      avatar: 'https://i.pravatar.cc/300?img=3',
-      dateAdded: '2025-03-30',
-      activity: [
-        { type: 'purchase', description: 'Commissioned a portrait', date: '2025-03-30' }
-      ]
-    },
-    {
-      id: '4',
-      name: 'Art Gallery NYC',
-      type: 'gallery',
-      email: 'contact@artgallerynyc.com',
-      phone: '(555) 234-5678',
-      address: '321 Gallery Row, New York, NY 10012',
-      tags: ['vip', 'repeat'],
-      notes: 'Partnership for quarterly exhibitions. Next show scheduled for June.',
-      avatar: 'https://i.pravatar.cc/300?img=4',
-      dateAdded: '2024-11-15',
-      activity: [
-        { type: 'meeting', description: 'Meeting to discuss summer exhibition', date: '2025-03-22' },
-        { type: 'email', description: 'Sent exhibition proposal and artwork list', date: '2025-03-15' }
-      ]
-    },
-    {
-      id: '5',
-      name: 'Emily Williams',
-      type: 'customer',
-      email: 'emily.williams@example.com',
-      phone: '(555) 876-5432',
-      address: '654 Elm St, Austin, TX 78701',
-      tags: ['repeat'],
-      notes: 'Repeat customer who prefers digital art prints.',
-      avatar: 'https://i.pravatar.cc/300?img=5',
-      dateAdded: '2025-01-10',
-      activity: [
-        { type: 'purchase', description: 'Purchased "Digital Dreams" artwork', date: '2025-03-29' },
-        { type: 'purchase', description: 'Purchased "Abstract Geometry" digital print', date: '2025-02-15' }
-      ]
-    },
-    {
-      id: '6',
-      name: 'Robert Brown',
-      type: 'lead',
-      email: 'robert.brown@example.com',
-      phone: '(555) 345-6789',
-      address: '987 Cedar Ln, Seattle, WA 98101',
-      tags: ['lead'],
-      notes: 'Potential client interested in commissioning a sculpture.',
-      avatar: 'https://i.pravatar.cc/300?img=6',
-      dateAdded: '2025-03-25',
-      activity: [
-        { type: 'email', description: 'Sent portfolio and pricing information', date: '2025-03-26' },
-        { type: 'note', description: 'Initial inquiry about bronze sculptures', date: '2025-03-25' }
-      ]
-    },
-    {
-      id: '7',
-      name: 'Art Supplies Co.',
-      type: 'supplier',
-      email: 'orders@artsupplies.com',
-      phone: '(555) 567-8901',
-      address: '753 Supply St, Denver, CO 80201',
-      tags: [],
-      notes: 'Primary supplier for canvas, paints, and brushes.',
-      avatar: 'https://i.pravatar.cc/300?img=7',
-      dateAdded: '2024-09-05',
-      activity: [
-        { type: 'purchase', description: 'Ordered new canvas supplies', date: '2025-03-15' },
-        { type: 'email', description: 'Received invoice for last order', date: '2025-03-10' }
-      ]
-    },
-    {
-      id: '8',
-      name: 'Jennifer Davis',
-      type: 'customer',
-      email: 'jennifer.davis@example.com',
-      phone: '(555) 678-9012',
-      address: '159 Maple Ave, Miami, FL 33101',
-      tags: ['new', 'lead'],
-      notes: 'New customer interested in watercolor landscapes.',
-      avatar: 'https://i.pravatar.cc/300?img=8',
-      dateAdded: '2025-03-27',
-      activity: [
-        { type: 'email', description: 'Sent catalog of available watercolor pieces', date: '2025-03-28' },
-        { type: 'note', description: 'Initial inquiry through website contact form', date: '2025-03-27' }
-      ]
-    }
-  ])
-  
-  // Filtered and sorted contacts
-  const filteredContacts = computed(() => {
-    let result = contacts.value.filter(contact => {
-      // Search query
-      if (searchQuery.value && !contact.name.toLowerCase().includes(searchQuery.value.toLowerCase()) && 
-          !contact.email.toLowerCase().includes(searchQuery.value.toLowerCase())) {
+    </transition>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from 'vue'
+import {
+  Search, RefreshCw, Eye, Grid, List, Users, Mail, Calendar, Clock,
+  CheckCircle, XCircle, UserX, UserCheck, ChevronLeft, ChevronRight,
+  X, AlertTriangle
+} from 'lucide-vue-next'
+import { useFetchAllUsers } from "@/composables/modules/users/useFetchAllUsers"
+import { useFetchUserById } from "@/composables/modules/users/useFetchUserById"
+import { useDeactivateUser } from "@/composables/modules/users/useDeactivateUser"
+import { useActivateUser } from "@/composables/modules/users/useActivateUser"
+// Composables
+const { users, loading, error, fetchAllUsers } = useFetchAllUsers()
+const { findUserById, loading: fetchingUserById } = useFetchUserById()
+const { deactivateUser, loading: deactivateLoading } = useDeactivateUser()
+const { activateUser, loading: activateLoading } = useActivateUser()
+// View mode
+const viewMode = ref('grid')
+
+// Search and filters
+const searchQuery = ref('')
+const filters = ref({
+  role: 'all',
+  status: 'all',
+  emailVerified: 'all',
+  sortBy: 'date-desc'
+})
+
+// Pagination
+const currentPage = ref(1)
+const itemsPerPage = 10
+
+// Modal states
+const selectedUser = ref(null as any)
+const showConfirmModal = ref(false)
+const confirmAction = ref(null as any)
+
+// Computed properties
+const filteredUsers = computed(() => {
+  let result = users.value.filter(user => {
+    // Search query
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase()
+      const fullName = (user.fullName || `${user.firstName} ${user.lastName}`).toLowerCase()
+      const email = user.email.toLowerCase()
+      
+      if (!fullName.includes(query) && !email.includes(query)) {
         return false
       }
-      
-      // Type filter
-      if (filters.value.type !== 'all' && contact.type !== filters.value.type) {
-        return false
-      }
-      
-      // Tag filter
-      if (filters.value.tag !== 'all' && !contact.tags.includes(filters.value.tag)) {
-        return false
-      }
-      
-      return true
-    })
-    
-    // Sort the results
-    switch (filters.value.sortBy) {
-      case 'name-asc':
-        result.sort((a, b) => a.name.localeCompare(b.name))
-        break
-      case 'name-desc':
-        result.sort((a, b) => b.name.localeCompare(a.name))
-        break
-      case 'date-asc':
-        result.sort((a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime())
-        break
-      case 'date-desc':
-        result.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime())
-        break
     }
-    
-    return result
+
+    // Role filter
+    if (filters.value.role !== 'all' && user.role !== filters.value.role) {
+      return false
+    }
+
+    // Status filter
+    if (filters.value.status !== 'all') {
+      const isActive = filters.value.status === 'active'
+      if (user.isActive !== isActive) {
+        return false
+      }
+    }
+
+    // Email verification filter
+    if (filters.value.emailVerified !== 'all') {
+      const isVerified = filters.value.emailVerified === 'verified'
+      if (user.isEmailVerified !== isVerified) {
+        return false
+      }
+    }
+
+    return true
   })
-  
-  // Filter functions
-  const resetFilters = () => {
-    filters.value = {
-      type: 'all',
-      sortBy: 'name-asc',
-      tag: 'all'
-    }
-  }
-  
-  const applyFilters = () => {
-    // Filters are already applied via the computed property
-  }
-  
-  // Contact actions
-  const viewContactDetails = (contact: any) => {
-    selectedContact.value = contact
-  }
-  
-  const editContact = (contact: any) => {
-    currentContact.value = JSON.parse(JSON.stringify(contact)) // Deep copy
-    isEditContactModalOpen.value = true
-  }
-  
-  const deleteContact = (contact: any) => {
-    if (confirm(`Are you sure you want to delete ${contact.name} from contacts?`)) {
-      const index = contacts.value.findIndex(c => c.id === contact.id)
-      if (index !== -1) {
-        contacts.value.splice(index, 1)
-      }
-      
-      // Close the details modal if it's open
-      if (selectedContact.value && selectedContact.value.id === contact.id) {
-        selectedContact.value = null
-      }
-    }
-  }
-  
-  // Toggle tag in current contact
-  const toggleTag = (tag: string) => {
-    const index = currentContact.value.tags.indexOf(tag)
-    if (index === -1) {
-      currentContact.value.tags.push(tag)
-    } else {
-      currentContact.value.tags.splice(index, 1)
-    }
-  }
-  
-  // Save contact
-  const saveContact = () => {
-    if (isEditContactModalOpen.value) {
-      // Update existing contact
-      const index = contacts.value.findIndex(c => c.id === currentContact.value.id)
-      if (index !== -1) {
-        contacts.value[index] = { ...currentContact.value }
-        
-        // Update the selected contact if it's open
-        if (selectedContact.value && selectedContact.value.id === currentContact.value.id) {
-          selectedContact.value = { ...currentContact.value }
-        }
-      }
-    } else {
-      // Add new contact
-      const newContact = {
-        ...currentContact.value,
-        id: Date.now().toString(),
-        avatar: currentContact.value.avatar || `https://i.pravatar.cc/300?img=${Math.floor(Math.random() * 70)}`,
-        dateAdded: new Date().toISOString().split('T')[0],
-        activity: []
-      }
-      contacts.value.push(newContact)
-    }
-    closeContactModal()
-  }
-  
-  const closeContactModal = () => {
-    isAddContactModalOpen.value = false
-    isEditContactModalOpen.value = false
-    currentContact.value = {
-      id: '',
-      name: '',
-      type: 'customer',
-      email: '',
-      phone: '',
-      address: '',
-      tags: [],
-      notes: '',
-      avatar: '',
-      dateAdded: '',
-      activity: []
-    }
+
+  // Sort the results
+  switch (filters.value.sortBy) {
+    case 'name-asc':
+      result.sort((a, b) => {
+        const nameA = a.fullName || `${a.firstName} ${a.lastName}` || a.email
+        const nameB = b.fullName || `${b.firstName} ${b.lastName}` || b.email
+        return nameA.localeCompare(nameB)
+      })
+      break
+    case 'name-desc':
+      result.sort((a, b) => {
+        const nameA = a.fullName || `${a.firstName} ${a.lastName}` || a.email
+        const nameB = b.fullName || `${b.firstName} ${b.lastName}` || b.email
+        return nameB.localeCompare(nameA)
+      })
+      break
+    case 'date-asc':
+      result.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      break
+    case 'date-desc':
+      result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      break
+    case 'login-desc':
+      result.sort((a, b) => {
+        const dateA = a.lastLoginAt ? new Date(a.lastLoginAt).getTime() : 0
+        const dateB = b.lastLoginAt ? new Date(b.lastLoginAt).getTime() : 0
+        return dateB - dateA
+      })
+      break
   }
 
-  definePageMeta({
-      layout: 'dashboard'
-  })
+  return result
+})
+
+// Pagination computed properties
+const totalPages = computed(() => Math.ceil(filteredUsers.value.length / itemsPerPage))
+const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage + 1)
+const endIndex = computed(() => Math.min(currentPage.value * itemsPerPage, filteredUsers.value.length))
+
+const visiblePages = computed(() => {
+  const pages = []
+  const start = Math.max(1, currentPage.value - 2)
+  const end = Math.min(totalPages.value, currentPage.value + 2)
   
-  // Get icon for activity type
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'purchase':
-        return ShoppingCart
-      case 'email':
-        return Mail
-      case 'note':
-        return MessageSquare
-      case 'meeting':
-        return Calendar
-      case 'payment':
-        return CreditCard
-      default:
-        return MessageSquare
-    }
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
   }
-  </script>
+  
+  return pages
+})
+
+// Methods
+const formatDate = (dateString: string) => {
+  if (!dateString) return 'N/A'
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const refreshUsers = async () => {
+  await fetchAllUsers()
+}
+
+const resetFilters = () => {
+  filters.value = {
+    role: 'all',
+    status: 'all',
+    emailVerified: 'all',
+    sortBy: 'date-desc'
+  }
+  searchQuery.value = ''
+  currentPage.value = 1
+}
+
+const viewUserDetails = async (user: any) => {
+  selectedUser.value = user
+  // Optionally fetch fresh user data
+  // const freshUser = await findUserById(user._id || user.id)
+  // if (freshUser) selectedUser.value = freshUser
+}
+
+const toggleUserStatus = (user: any) => {
+  confirmAction.value = {
+    type: user.isActive ? 'deactivate' : 'activate',
+    user: user
+  }
+  showConfirmModal.value = true
+}
+
+const confirmStatusChange = async () => {
+  if (!confirmAction.value) return
+
+  const { type, user } = confirmAction.value
+  const userId = user._id || user.id
+
+  try {
+    let success = false
+    
+    if (type === 'deactivate') {
+      success = await deactivateUser(userId)
+    } else {
+      success = await activateUser(userId)
+    }
+
+    if (success) {
+      // Update the user in the local state
+      const userIndex = users.value.findIndex(u => (u._id || u.id) === userId)
+      if (userIndex !== -1) {
+        users.value[userIndex].isActive = type === 'activate'
+      }
+
+      // Update selected user if it's the same user
+      if (selectedUser.value && (selectedUser.value._id || selectedUser.value.id) === userId) {
+        selectedUser.value.isActive = type === 'activate'
+      }
+
+      // Show success message (you can implement toast notifications here)
+      console.log(`User ${type === 'activate' ? 'activated' : 'deactivated'} successfully`)
+    }
+  } catch (error) {
+    console.error(`Error ${type}ing user:`, error)
+    // Show error message (you can implement toast notifications here)
+  } finally {
+    showConfirmModal.value = false
+    confirmAction.value = null
+  }
+}
+
+const cancelStatusChange = () => {
+  showConfirmModal.value = false
+  confirmAction.value = null
+}
+
+// Page meta
+definePageMeta({
+  layout: 'dashboard'
+})
+
+// Watch for filter changes to reset pagination
+watch([searchQuery, filters], () => {
+  currentPage.value = 1
+}, { deep: true })
+</script>

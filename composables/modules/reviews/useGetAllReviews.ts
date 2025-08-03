@@ -11,7 +11,8 @@ export const useGetAllReviews = (page: number = 1, limit: number = 10) => {
     error.value = null
     try {
       const response = await review_api.$_get_all_reviews(page, limit)
-      reviews.value = response.data
+      console.log(response,' rwsponhehe')
+      reviews.value = response?.data?.reviews
     } catch (e: any) {
       error.value = e.response?.data?.message || 'Failed to fetch reviews'
     } finally {

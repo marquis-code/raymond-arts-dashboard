@@ -6,7 +6,7 @@
           <p class="mt-1 text-sm text-gray-900">Manage student enrollments in your courses</p>
         </div>
       </div>
-      {{userEnrollments}}
+      <!-- {{userEnrollments}} -->
   
       <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
         <div class="flex flex-col md:flex-row md:items-center gap-4">

@@ -1042,14 +1042,15 @@ const closeDetailsDrawer = () => {
 
 const editProduct = (product: any) => {
   // Close details drawer if open
-  if (isDetailsDrawerOpen.value) {
-    closeDetailsDrawer()
-    setTimeout(() => {
-      openEditDrawer(product)
-    }, 300)
-  } else {
-    openEditDrawer(product)
-  }
+  navigateTo(`/dashboard/products/create?id=${product?.id}`)
+  // if (isDetailsDrawerOpen.value) {
+  //   closeDetailsDrawer()
+  //   setTimeout(() => {
+  //     openEditDrawer(product)
+  //   }, 300)
+  // } else {
+  //   openEditDrawer(product)
+  // }
 }
 
 const openEditDrawer = (product: any) => {

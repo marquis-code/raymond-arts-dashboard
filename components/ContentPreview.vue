@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-2xl font-bold text-white">Content Preview</h2>
-            <p class="text-blue-100 mt-1">{{ content.title }}</p>
+            <p class="text-blue-100 mt-1">{{ content?.title || 'Untitled' }}</p>
           </div>
           <button
             @click="$emit('close')"
@@ -23,30 +23,30 @@
         <!-- Basic Info -->
         <div class="mb-8">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-semibold text-gray-900">{{ content.title }}</h3>
+            <h3 class="text-xl font-semibold text-gray-900">{{ content?.title || 'Untitled' }}</h3>
             <span
-              :class="getStatusBadgeClass(content.status)"
+              :class="getStatusBadgeClass(content?.status)"
               class="px-3 py-1 text-sm font-medium rounded-full"
             >
-              {{ getStatusLabel(content.status) }}
+              {{ getStatusLabel(content?.status) }}
             </span>
           </div>
           
           <div class="flex items-center space-x-4 text-sm text-gray-600 mb-4">
             <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
-              {{ getTypeLabel(content.type) }}
+              {{ getTypeLabel(content?.type) }}
             </span>
-            <span>{{ content.images?.length || 0 }} image{{ (content.images?.length || 0) !== 1 ? 's' : '' }}</span>
-            <span>Updated {{ formatDate(content.updatedAt || new Date().toISOString()) }}</span>
+            <span>{{ content?.images?.length || 0 }} image{{ (content?.images?.length || 0) !== 1 ? 's' : '' }}</span>
+            <span>Updated {{ formatDate(content?.updatedAt || new Date().toISOString()) }}</span>
           </div>
           
-          <p v-if="content.description" class="text-gray-700 leading-relaxed">
+          <p v-if="content?.description" class="text-gray-700 leading-relaxed">
             {{ content.description }}
           </p>
         </div>
 
         <!-- Images -->
-        <div v-if="content.images && content.images.length > 0" class="mb-8">
+        <div v-if="content?.images && content.images.length > 0" class="mb-8">
           <h4 class="text-lg font-semibold text-gray-900 mb-4">Images</h4>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div
@@ -68,7 +68,7 @@
         </div>
 
         <!-- Contact Info Preview -->
-        <div v-if="content.type === 'contact_info' && content.metadata?.contactInfo" class="mb-8">
+        <div v-if="content?.type === 'contact_info' && content.metadata?.contactInfo" class="mb-8">
           <h4 class="text-lg font-semibold text-gray-900 mb-4">Contact Information</h4>
           
           <!-- Email -->
@@ -116,7 +116,7 @@
         </div>
 
         <!-- About Info Preview -->
-        <div v-if="content.type === 'about_section' && content.metadata?.aboutInfo" class="mb-8">
+        <div v-if="content?.type === 'about_section' && content.metadata?.aboutInfo" class="mb-8">
           <h4 class="text-lg font-semibold text-gray-900 mb-4">About Information</h4>
           
           <!-- Biography -->
@@ -182,7 +182,7 @@
         </div>
 
         <!-- Commission Info Preview -->
-        <div v-if="content.type === 'commission_info'" class="mb-8">
+        <div v-if="content?.type === 'commission_info'" class="mb-8">
           <h4 class="text-lg font-semibold text-gray-900 mb-4">Commission Information</h4>
           
           <!-- Sizes -->
@@ -242,11 +242,14 @@ import { computed } from 'vue'
 
 interface Props {
   content: any
-  contentTypes: any[]
-  contentStatuses: any[]
+  contentTypes?: any[]
+  contentStatuses?: any[]
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  contentTypes: () => [],
+  contentStatuses: () => []
+})
 
 const emit = defineEmits<{
   close: []
@@ -254,35 +257,47 @@ const emit = defineEmits<{
 }>()
 
 const sortedSections = computed(() => {
-  if (!props.content.metadata?.sections) return []
+  if (!props.content?.metadata?.sections) return []
   return [...props.content.metadata.sections].sort((a, b) => a.order - b.order)
 })
 
-const getStatusBadgeClass = (status: string) => {
+const getStatusBadgeClass = (status?: string) => {
+  if (!status || !props.contentStatuses?.length) {
+    return 'bg-gray-100 text-gray-800'
+  }
+  
   const statusInfo = props.contentStatuses.find(s => s.value === status)
   const color = statusInfo?.color || 'gray'
   
   return {
     'bg-green-100 text-green-800': color === 'green',
     'bg-red-100 text-red-800': color === 'red',
-    'bg-gray-100 text-gray-800': color === 'gray',
+    'bg-yellow-100 text-yellow-800': color === 'yellow',
+    'bg-blue-100 text-blue-800': color === 'blue',
+    'bg-gray-100 text-gray-800': color === 'gray' || !color,
   }
 }
 
-const getStatusLabel = (status: string) => {
+const getStatusLabel = (status?: string) => {
+  if (!status || !props.contentStatuses?.length) return status || 'Unknown'
   return props.contentStatuses.find(s => s.value === status)?.label || status
 }
 
-const getTypeLabel = (type: string) => {
+const getTypeLabel = (type?: string) => {
+  if (!type || !props.contentTypes?.length) return type || 'Unknown'
   return props.contentTypes.find(t => t.value === type)?.label || type
 }
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
+  try {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  } catch (error) {
+    return 'Invalid date'
+  }
 }
 
 const handleImageError = (event: Event) => {
