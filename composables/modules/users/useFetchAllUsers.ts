@@ -11,8 +11,9 @@ export const useFetchAllUsers = () => {
     error.value = null
     try {
       const response = await users_api.$_fetch_all_users()
-      users.value = response.data || []
-      return users.value
+      console.log(response, 'response  heerrr')
+      users.value = response?.data?.data
+      return response?.data?.data
     } catch (e: any) {
       error.value = e.response?.data?.message || 'Failed to fetch users'
       throw error.value

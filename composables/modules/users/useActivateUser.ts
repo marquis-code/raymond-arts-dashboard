@@ -7,11 +7,11 @@ export const useActivateUser = () => {
   const error = ref<string | null>(null)
   const { showToast } = useCustomToast()
 
-  const activateUser = async (id: string, payload: any) => {
+  const activateUser = async (id: string) => {
     loading.value = true
     error.value = null
     try {
-      const response = await users_api.$_activate_user(id, payload)
+      const response = await users_api.$_activate_user(id)
       return response.data
     } catch (e: any) {
       error.value = e.response?.data?.message || 'Failed to activate user'
