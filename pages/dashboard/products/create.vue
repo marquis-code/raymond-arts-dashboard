@@ -1313,6 +1313,7 @@
   const batchFileInput = ref<HTMLInputElement | null>(null)
   const isDraggingSingle = ref(false)
   const isDraggingBatch = ref(false)
+  const router = useRouter()
   
   // Computed properties
   const categoryOptions = computed(() => {
@@ -1777,7 +1778,7 @@
         clearLocalStorage()
         
         // Redirect to products list or show success message
-        await navigateTo('/admin/products')
+        await router.push('/dashboard/products')
       }
     } catch (error) {
       console.error(`Error ${isEditMode.value ? 'updating' : 'creating'} product:`, error)

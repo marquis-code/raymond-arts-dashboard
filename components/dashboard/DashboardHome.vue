@@ -468,7 +468,7 @@ const getPaymentStatusColor = (status: string) => {
 <template>
   <div>
     <div class="container mx-auto space-y-6">
-      <h1 class="text-2xl font-semibold text-gray-900 mb-4">Dashboard Overview</h1>
+      <h1 class="text-xl font-semibold text-gray-900 mb-4">Dashboard Overview</h1>
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4">
