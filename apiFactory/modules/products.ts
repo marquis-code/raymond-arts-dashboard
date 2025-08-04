@@ -92,4 +92,7 @@ export const product_api = {
   $_upload_category_image(id: string) {
     return GATEWAY_ENDPOINT.post(`/products/categories/${id}/image`);
   },
+  $_reorder_products(data: { orderedProducts: string[] }) {
+    return GATEWAY_ENDPOINT.patch("/products/reorder", data)
+  },
 };

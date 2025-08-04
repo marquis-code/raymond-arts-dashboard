@@ -1,5 +1,35 @@
 <template>
   <div class="space-y-6">
+    <!-- Notification Toast -->
+    <Transition
+      enter-active-class="transition ease-out duration-300 transform"
+      enter-from-class="opacity-0 translate-y-full scale-95"
+      enter-to-class="opacity-100 translate-y-0 scale-100"
+      leave-active-class="transition ease-in duration-200 transform"
+      leave-from-class="opacity-100 translate-y-0 scale-100"
+      leave-to-class="opacity-0 translate-y-full scale-95"
+    >
+      <div
+        v-if="showNotification"
+        :class="{
+          'fixed bottom-4 right-4 z-50 p-4 rounded-lg shadow-lg flex items-center space-x-3 text-white backdrop-blur-sm': true,
+          'bg-green-500/90': notificationType === 'success',
+          'bg-red-500/90': notificationType === 'error',
+        }"
+        role="alert"
+      >
+        <CheckCircle v-if="notificationType === 'success'" class="h-6 w-6 animate-pulse" />
+        <AlertTriangle v-if="notificationType === 'error'" class="h-6 w-6 animate-bounce" />
+        <span class="font-medium">{{ notificationMessage }}</span>
+        <button 
+          @click="showNotification = false" 
+          class="ml-auto p-1 rounded-full hover:bg-white/20 transition-colors duration-200"
+        >
+          <X class="h-5 w-5" />
+        </button>
+      </div>
+    </Transition>
+
     <!-- Header with actions -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
@@ -11,6 +41,34 @@
           <Filter class="h-4 w-4 mr-2" />
           Filters
         </button>
+        <div class="flex rounded-full bg-white p-1 shadow-md border border-gray-200">
+          <button
+            @click="viewMode = 'list'"
+            :class="{
+              'rounded-full p-2 transition-all duration-200': true,
+              'bg-violet-500 text-white shadow-inner': viewMode === 'list',
+              'text-gray-600 hover:bg-gray-100': viewMode === 'grid',
+            }"
+            aria-label="Switch to list view"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
+          </button>
+          <button
+            @click="viewMode = 'grid'"
+            :class="{
+              'rounded-full p-2 transition-all duration-200': true,
+              'bg-violet-500 text-white shadow-inner': viewMode === 'grid',
+              'text-gray-600 hover:bg-gray-100': viewMode === 'list',
+            }"
+            aria-label="Switch to grid view"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-.125m-9.75 0V5.625m0 12.75A1.125 1.125 0 012.25 18.375m0-12.75C2.25 4.365 2.871 3.75 3.375 3.75s1.125.615 1.125 1.375m0 0V7.5m0-4.125C3.375 2.254 3.996 1.5 4.875 1.5h4.125c.621 0 1.125.504 1.125 1.125M12 1.5h5.625c.621 0 1.125.504 1.125 1.125v17.25c0 .621-.504 1.125-1.125 1.125h-5.625c-.621 0-1.125-.504-1.125-1.125V3.375c0-.621.504-1.125 1.125-1.125z" />
+            </svg>
+          </button>
+        </div>
         <NuxtLink to="/dashboard/products/create" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-all duration-300">
           <Plus class="h-4 w-4 mr-2" />
           Add Artwork
@@ -34,16 +92,16 @@
           <label for="price-range" class="block text-sm font-medium text-gray-700 mb-1">Price Range</label>
           <div class="flex items-center space-x-2">
             <input 
-              type="number" 
-              v-model="filters.minPrice" 
-              placeholder="Min" 
+              type="number"
+              v-model="filters.minPrice"
+              placeholder="Min"
               class="w-full rounded-md border-gray-300 border p-2.5 text-sm focus:border-violet-500 focus:ring-violet-500"
             />
             <span>-</span>
             <input 
-              type="number" 
-              v-model="filters.maxPrice" 
-              placeholder="Max" 
+              type="number"
+              v-model="filters.maxPrice"
+              placeholder="Max"
               class="w-full rounded-md border-gray-300 border p-2.5 text-sm focus:border-violet-500 focus:ring-violet-500"
             />
           </div>
@@ -68,9 +126,8 @@
     </div>
 
     <!-- Products Grid -->
-
     <!-- Empty state -->
-    <div v-if="filteredProducts.length === 0 && !loading" class="bg-white p-8 rounded-lg border border-gray-100 text-center">
+    <div v-if="draggableProducts.length === 0 && !loading" class="bg-white p-8 rounded-lg border border-gray-100 text-center">
       <div class="flex justify-center">
         <img src="https://res.cloudinary.com/marquis/image/upload/v1744598033/nest-cloudinary/empty-state.svg" alt="No products found" class="h-32 w-32 mb-4" />
       </div>
@@ -86,21 +143,70 @@
       </div>
     </div>
 
-    <!-- <div v-else-if="loading && !filteredProducts?.length">Loading Products</div> -->
-    <div v-else-if="loading && !filteredProducts?.length" class="p-8 flex justify-center items-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-700"></div>
-      </div>
+    <!-- Loading State -->
+    <div v-else-if="loading && !draggableProducts?.length" class="p-8 flex justify-center items-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-700"></div>
+    </div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="(product, index) in filteredProducts" :key="product.id || index" 
-           class="product-card bg-white rounded-lg border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-xl transform hover:-translate-y-2">
-        <div class="relative aspect-w-4 aspect-h-3 bg-gray-100 group cursor-pointer" @click="openImageGallery(product)">
+    <!-- Products Grid/List with Drag & Drop -->
+    <!-- Grid View -->
+    <TransitionGroup
+      v-if="viewMode === 'grid'"
+      enter-active-class="transition-all duration-500 ease-out"
+      enter-from-class="opacity-0 scale-95 translate-y-4"
+      enter-to-class="opacity-100 scale-100 translate-y-0"
+      leave-active-class="transition-all duration-300 ease-in"
+      leave-from-class="opacity-100 scale-100 translate-y-0"
+      leave-to-class="opacity-0 scale-95 -translate-y-4"
+      tag="div"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      <div 
+        v-for="(product, index) in filteredProducts" 
+        :key="product.id || index"
+        :draggable="!reorderLoading"
+        @dragstart="handleDragStart($event, index)"
+        @dragover="handleDragOver($event, index)"
+        @dragleave="handleDragLeave"
+        @drop="handleDrop($event, index)"
+        @dragend="handleDragEnd"
+        class="product-card group bg-white rounded-lg border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-xl transform hover:-translate-y-2"
+        :class="{
+          'opacity-50 scale-95 rotate-2': draggedIndex === index,
+          'border-2 border-amber-400 shadow-amber-200 scale-105': dropTargetIndex === index && draggedIndex !== index,
+          'cursor-not-allowed opacity-60': reorderLoading
+        }"
+      >
+        <!-- Drop Target Indicator -->
+        <div v-if="dropTargetIndex === index && draggedIndex !== index" class="absolute inset-0 border-2 border-dashed border-amber-400 rounded-lg pointer-events-none z-20 animate-pulse">
+          <div class="absolute inset-0 bg-amber-100/20 rounded-lg"></div>
+        </div>
+
+        <!-- Reorder Loading Indicator -->
+        <div v-if="reorderLoading && dropTargetIndex === index" class="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-30 rounded-lg">
+          <div class="animate-spin rounded-full h-8 w-8 border-4 border-amber-500 border-t-transparent"></div>
+        </div>
+
+        <div class="relative aspect-w-4 aspect-h-3 bg-gray-100 cursor-pointer" @click="openImageGallery(product)">
+          <!-- Drag Handle -->
+          <div class="absolute top-2 right-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <button
+              class="drag-handle cursor-grab rounded-full bg-black/50 p-2 text-white shadow-md transition-all duration-200 hover:bg-black/70 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white active:cursor-grabbing"
+              aria-label="Drag to reorder"
+              @click.stop
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+          </div>
+
           <!-- Image Carousel -->
           <div class="carousel-container w-full h-full overflow-hidden">
             <div v-if="product.images && product.images.length > 0" class="carousel-slides w-full h-full relative">
-              <div 
-                v-for="(image, imgIndex) in product.images" 
-                :key="imgIndex" 
+              <div
+                v-for="(image, imgIndex) in product.images"
+                :key="imgIndex"
                 class="carousel-slide absolute top-0 left-0 w-full h-full transition-opacity duration-500"
                 :class="{ 'opacity-100 z-10': currentSlide[product.id] === imgIndex, 'opacity-0 z-0': currentSlide[product.id] !== imgIndex }"
               >
@@ -119,25 +225,25 @@
             </div>
             
             <!-- Carousel Controls (only if multiple images) -->
-            <div v-if="product.images && product.images.length > 1" 
+            <div v-if="product.images && product.images.length > 1"
                  class="carousel-controls absolute bottom-2 left-0 right-0 flex justify-center space-x-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button 
-                @click.stop="prevSlide(product.id)" 
+              <button
+                @click.stop="prevSlide(product.id)"
                 class="bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 focus:outline-none transition-all"
               >
                 <ChevronLeft class="h-4 w-4" />
               </button>
               <div class="flex space-x-1">
-                <button 
-                  v-for="(_, dotIndex) in product.images" 
+                <button
+                  v-for="(_, dotIndex) in product.images"
                   :key="dotIndex"
                   @click.stop="goToSlide(product.id, dotIndex)"
                   class="w-2 h-2 rounded-full focus:outline-none transition-all"
                   :class="dotIndex === currentSlide[product.id] ? 'bg-white' : 'bg-white bg-opacity-50'"
                 ></button>
               </div>
-              <button 
-                @click.stop="nextSlide(product.id)" 
+              <button
+                @click.stop="nextSlide(product.id)"
                 class="bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 focus:outline-none transition-all"
               >
                 <ChevronRight class="h-4 w-4" />
@@ -147,20 +253,21 @@
           
           <!-- Product badges -->
           <div class="absolute top-2 left-2 flex flex-col gap-1 z-20">
-            <span v-if="product.isFeatured" 
+            <span v-if="product.isFeatured"
                   class="badge badge-featured inline-flex items-center px-2 py-1 rounded-md text-xs font-medium">
               Featured
             </span>
-            <span v-if="product.isNew" 
+            <span v-if="product.isNew"
                   class="badge badge-new inline-flex items-center px-2 py-1 rounded-md text-xs font-medium">
               New
             </span>
-            <span v-if="product.isBestseller" 
+            <span v-if="product.isBestseller"
                   class="badge badge-bestseller inline-flex items-center px-2 py-1 rounded-md text-xs font-medium">
               Bestseller
             </span>
           </div>
         </div>
+
         <div class="p-5">
           <div class="flex justify-between items-start">
             <div>
@@ -179,7 +286,7 @@
             <p v-html="product.description" class="text-sm text-gray-600 line-clamp-2"></p>
           </div>
           <div class="mt-4 flex flex-wrap gap-1">
-            <span v-for="(tag, tagIndex) in product.tags" :key="tagIndex" 
+            <span v-for="(tag, tagIndex) in product.tags" :key="tagIndex"
                   class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-violet-50 text-violet-700 border border-violet-100 transition-all hover:bg-violet-100">
               {{ tag }}
             </span>
@@ -195,20 +302,20 @@
                 Not Available
               </span>
             </div>
-            <div class="flex space-x-1">
-              <button @click="viewProductDetails(product)" 
+            <div class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <button @click="viewProductDetails(product)"
                       class="action-button p-1.5 rounded-full text-gray-400 hover:text-violet-500 hover:bg-violet-50 transition-all">
                 <Eye class="h-5 w-5" />
               </button>
-              <button @click="editProduct(product)" 
+              <button @click="editProduct(product)"
                       class="action-button p-1.5 rounded-full text-gray-400 hover:text-violet-500 hover:bg-violet-50 transition-all">
                 <Edit class="h-5 w-5" />
               </button>
-              <!-- <button @click="duplicateProduct(product)" 
+              <button @click="duplicateProduct(product)"
                       class="action-button p-1.5 rounded-full text-gray-400 hover:text-violet-500 hover:bg-violet-50 transition-all">
                 <Copy class="h-5 w-5" />
-              </button> -->
-              <button @click="confirmDeleteProduct(product)" 
+              </button>
+              <button @click="confirmDeleteProduct(product)"
                       class="action-button p-1.5 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all">
                 <Trash2 class="h-5 w-5" />
               </button>
@@ -216,13 +323,142 @@
           </div>
         </div>
       </div>
-    </div>
+    </TransitionGroup>
+
+    <!-- List View -->
+    <TransitionGroup
+      v-else
+      enter-active-class="transition-all duration-500 ease-out"
+      enter-from-class="opacity-0 translate-x-4"
+      enter-to-class="opacity-100 translate-x-0"
+      leave-active-class="transition-all duration-300 ease-in"
+      leave-from-class="opacity-100 translate-x-0"
+      leave-to-class="opacity-0 -translate-x-4"
+      tag="ul"
+      class="divide-y divide-gray-200 rounded-lg bg-white shadow-lg overflow-hidden"
+    >
+      <li
+        v-for="(product, index) in filteredProducts"
+        :key="product.id || index"
+        :draggable="!reorderLoading"
+        @dragstart="handleDragStart($event, index)"
+        @dragover="handleDragOver($event, index)"
+        @dragleave="handleDragLeave"
+        @drop="handleDrop($event, index)"
+        @dragend="handleDragEnd"
+        class="relative flex items-center justify-between py-4 px-6 transition-all duration-200 hover:bg-gray-50 hover:shadow-md group"
+        :class="{
+          'opacity-50 scale-95': draggedIndex === index,
+          'bg-amber-50 border-l-4 border-amber-400': dropTargetIndex === index && draggedIndex !== index,
+          'cursor-not-allowed opacity-60': reorderLoading
+        }"
+      >
+        <!-- Drop Target Indicator -->
+        <div v-if="dropTargetIndex === index && draggedIndex !== index" class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400 animate-pulse"></div>
+
+        <!-- Reorder Loading Indicator -->
+        <div v-if="reorderLoading && dropTargetIndex === index" class="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-30">
+          <div class="animate-spin rounded-full h-6 w-6 border-4 border-amber-500 border-t-transparent"></div>
+        </div>
+
+        <div class="flex items-center space-x-4 flex-1">
+          <button
+            class="drag-handle cursor-grab text-gray-400 hover:text-gray-600 transition-all duration-200 hover:scale-110 active:cursor-grabbing"
+            aria-label="Drag to reorder"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+          <div class="relative cursor-pointer" @click="openImageGallery(product)">
+            <img
+              :src="product.images && product.images[0] ? product.images[0] : '/placeholder.svg?height=64&width=64&text=No Image'"
+              :alt="product.name"
+              class="h-16 w-16 flex-shrink-0 rounded-md object-cover shadow-sm transition-transform duration-200 hover:scale-105"
+            />
+            <!-- Image count indicator -->
+            <div v-if="product.images && product.images.length > 1" class="absolute -top-1 -right-1 bg-violet-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              {{ product.images.length }}
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <h3 class="text-lg font-semibold text-gray-900 hover:text-violet-600 transition-colors duration-200 truncate">{{ product.name }}</h3>
+                <p class="text-sm text-gray-500">{{ getCategoryName(product.category) }}</p>
+                <p v-html="product.description" class="text-sm text-gray-600 line-clamp-2 mt-1"></p>
+                <div class="flex items-center space-x-4 mt-2">
+                  <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Position: {{ product.position || index + 1 }}</span>
+                  <span v-if="product.isAvailable" class="text-green-600 font-medium flex items-center text-sm">
+                    <CheckCircle class="h-4 w-4 mr-1" />
+                    Available
+                  </span>
+                  <span v-else class="text-red-500 font-medium flex items-center text-sm">
+                    <XCircle class="h-4 w-4 mr-1" />
+                    Not Available
+                  </span>
+                </div>
+              </div>
+              <div class="text-right ml-4">
+                <p class="text-lg font-bold text-gray-900">${{ product.price.toFixed(2) }}</p>
+                <p v-if="product.discountPrice" class="text-sm text-red-600">
+                  <span class="line-through">${{ product.discountPrice.toFixed(2) }}</span>
+                  <span class="ml-1 bg-red-100 text-red-800 text-xs px-1 py-0.5 rounded-full">-{{ product.discountPercentage }}%</span>
+                </p>
+              </div>
+            </div>
+            <div class="mt-2 flex flex-wrap gap-1">
+              <span v-for="(tag, tagIndex) in product.tags?.slice(0, 3)" :key="tagIndex"
+                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-violet-50 text-violet-700 border border-violet-100">
+                {{ tag }}
+              </span>
+              <span v-if="product.tags && product.tags.length > 3" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                +{{ product.tags.length - 3 }} more
+              </span>
+            </div>
+            <!-- Product badges -->
+            <div class="flex gap-1 mt-2">
+              <span v-if="product.isFeatured"
+                    class="badge badge-featured inline-flex items-center px-2 py-1 rounded-md text-xs font-medium">
+                Featured
+              </span>
+              <span v-if="product.isNew"
+                    class="badge badge-new inline-flex items-center px-2 py-1 rounded-md text-xs font-medium">
+                New
+              </span>
+              <span v-if="product.isBestseller"
+                    class="badge badge-bestseller inline-flex items-center px-2 py-1 rounded-md text-xs font-medium">
+                Bestseller
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <button @click="viewProductDetails(product)"
+                  class="action-button p-2 rounded-full text-gray-400 hover:text-violet-500 hover:bg-violet-50 transition-all">
+            <Eye class="h-5 w-5" />
+          </button>
+          <button @click="editProduct(product)"
+                  class="action-button p-2 rounded-full text-gray-400 hover:text-violet-500 hover:bg-violet-50 transition-all">
+            <Edit class="h-5 w-5" />
+          </button>
+          <button @click="duplicateProduct(product)"
+                  class="action-button p-2 rounded-full text-gray-400 hover:text-violet-500 hover:bg-violet-50 transition-all">
+            <Copy class="h-5 w-5" />
+          </button>
+          <button @click="confirmDeleteProduct(product)"
+                  class="action-button p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all">
+            <Trash2 class="h-5 w-5" />
+          </button>
+        </div>
+      </li>
+    </TransitionGroup>
 
     <!-- Image Gallery Modal -->
     <Teleport to="body">
       <div v-if="isGalleryOpen" class="fixed inset-0 z-50 overflow-hidden" @click="closeGallery">
         <div class="absolute inset-0 overflow-hidden">
-          <div class="absolute inset-0 bg-black bg-opacity-90 transition-opacity" 
+          <div class="absolute inset-0 bg-black bg-opacity-90 transition-opacity"
                :class="galleryClasses"></div>
           
           <div class="fixed inset-0 flex items-center justify-center p-4"
@@ -236,18 +472,18 @@
             <div class="relative max-w-5xl w-full max-h-full" @click.stop>
               <!-- Main image -->
               <div class="relative aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden">
-                <img 
-                  v-if="galleryImages.length > 0" 
-                  :src="galleryImages[galleryCurrentSlide]" 
-                  :alt="`Gallery image ${galleryCurrentSlide + 1}`" 
+                <img
+                  v-if="galleryImages.length > 0"
+                  :src="galleryImages[galleryCurrentSlide]"
+                  :alt="`Gallery image ${galleryCurrentSlide + 1}`"
                   class="object-contain w-full h-full"
                 />
               </div>
               
               <!-- Gallery controls -->
               <div class="absolute inset-y-0 left-0 flex items-center">
-                <button 
-                  @click.stop="prevGallerySlide" 
+                <button
+                  @click.stop="prevGallerySlide"
                   class="bg-black bg-opacity-50 text-white rounded-full p-2 ml-4 hover:bg-opacity-70 focus:outline-none transition-all"
                 >
                   <ChevronLeft class="h-8 w-8" />
@@ -255,8 +491,8 @@
               </div>
               
               <div class="absolute inset-y-0 right-0 flex items-center">
-                <button 
-                  @click.stop="nextGallerySlide" 
+                <button
+                  @click.stop="nextGallerySlide"
                   class="bg-black bg-opacity-50 text-white rounded-full p-2 mr-4 hover:bg-opacity-70 focus:outline-none transition-all"
                 >
                   <ChevronRight class="h-8 w-8" />
@@ -265,8 +501,8 @@
               
               <!-- Thumbnails -->
               <div class="mt-4 flex justify-center space-x-2">
-                <button 
-                  v-for="(_, imgIndex) in galleryImages" 
+                <button
+                  v-for="(_, imgIndex) in galleryImages"
                   :key="imgIndex"
                   @click.stop="galleryCurrentSlide = imgIndex"
                   class="w-16 h-16 rounded-md overflow-hidden focus:outline-none transition-all border-2"
@@ -290,7 +526,7 @@
     <Teleport to="body">
       <div v-if="isDetailsDrawerOpen" class="fixed inset-0 z-50 overflow-hidden">
         <div class="absolute inset-0 overflow-hidden">
-          <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+          <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
                @click="closeDetailsDrawer"
                :class="detailsDrawerClasses"></div>
           <div class="fixed inset-y-0 right-0 max-w-full flex">
@@ -315,9 +551,9 @@
                   <!-- Product Images Carousel -->
                   <div class="relative rounded-lg overflow-hidden mb-6 aspect-w-4 aspect-h-3 group cursor-pointer" @click="openImageGallery(selectedProduct)">
                     <div v-if="selectedProduct.images && selectedProduct.images.length > 0" class="carousel-slides w-full h-full relative">
-                      <div 
-                        v-for="(image, imgIndex) in selectedProduct.images" 
-                        :key="imgIndex" 
+                      <div
+                        v-for="(image, imgIndex) in selectedProduct.images"
+                        :key="imgIndex"
                         class="carousel-slide absolute top-0 left-0 w-full h-full transition-opacity duration-500"
                         :class="{ 'opacity-100 z-10': detailsCurrentSlide === imgIndex, 'opacity-0 z-0': detailsCurrentSlide !== imgIndex }"
                       >
@@ -333,25 +569,25 @@
                     </div>
                     
                     <!-- Carousel Controls -->
-                    <div v-if="selectedProduct.images && selectedProduct.images.length > 1" 
+                    <div v-if="selectedProduct.images && selectedProduct.images.length > 1"
                          class="carousel-controls absolute bottom-2 left-0 right-0 flex justify-center space-x-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <button 
-                        @click.stop="prevDetailsSlide" 
+                      <button
+                        @click.stop="prevDetailsSlide"
                         class="bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 focus:outline-none transition-all"
                       >
                         <ChevronLeft class="h-4 w-4" />
                       </button>
                       <div class="flex space-x-1">
-                        <button 
-                          v-for="(_, dotIndex) in selectedProduct.images" 
+                        <button
+                          v-for="(_, dotIndex) in selectedProduct.images"
                           :key="dotIndex"
                           @click.stop="detailsCurrentSlide = dotIndex"
                           class="w-2 h-2 rounded-full focus:outline-none transition-all"
                           :class="dotIndex === detailsCurrentSlide ? 'bg-white' : 'bg-white bg-opacity-50'"
                         ></button>
                       </div>
-                      <button 
-                        @click.stop="nextDetailsSlide" 
+                      <button
+                        @click.stop="nextDetailsSlide"
                         class="bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 focus:outline-none transition-all"
                       >
                         <ChevronRight class="h-4 w-4" />
@@ -386,7 +622,6 @@
                       <p v-html="selectedProduct.description" class="mt-1 text-sm text-gray-600"></p>
                     </div>
 
-                    <!-- {{selectedProduct}} -->
                     <div v-if="selectedProduct.sizes">
                       <h4 class="text-sm font-medium text-gray-900">Sizes</h4>
                       <div class="mt-2 flex flex-wrap gap-2">
@@ -480,7 +715,7 @@
     <Teleport to="body">
       <div v-if="isEditDrawerOpen" class="fixed inset-0 z-50 overflow-hidden">
         <div class="absolute inset-0 overflow-hidden">
-          <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+          <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
                @click="closeEditDrawer"
                :class="editDrawerClasses"></div>
           <div class="fixed inset-y-0 right-0 max-w-full flex">
@@ -514,73 +749,61 @@
                         
                         <div>
                           <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                          <CoreQuillEditor 
+                          <CoreQuillEditor
                             v-model="editingProduct.description"
                             placeholder="Describe your artwork with rich formatting..."
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"
                           />
-                          <!-- <textarea id="description" v-model="editingProduct.description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"></textarea> -->
                         </div>
 
-                                      <!-- Product Information -->
-              <div class="form-group">
-                <div class="flex items-center justify-between mb-3">
-                  <label class="form-label text-base font-semibold">Product Information</label>
-                  <!-- <Tooltip text="Detailed information about your artwork including materials, techniques, inspiration, and story">
-                    <InfoCircleIcon class="h-4 w-4 text-blue-400 hover:text-blue-600 transition-colors" />
-                  </Tooltip> -->
-                </div>
-                <div class="quill-wrapper">
-                  <CoreQuillEditor 
-                    v-model="editingProduct.productInfo" 
-                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"
-                    placeholder="Include details about materials, techniques, inspiration, dimensions, care instructions, and the story behind your artwork..."
-                  />
-                </div>
-                <p class="text-xs text-gray-500 mt-2">
-                  This content will be displayed as formatted HTML on the product page.
-                </p>
-              </div>
+                        <!-- Product Information -->
+                        <div class="form-group">
+                          <div class="flex items-center justify-between mb-3">
+                            <label class="form-label text-base font-semibold">Product Information</label>
+                          </div>
+                          <div class="quill-wrapper">
+                            <CoreQuillEditor
+                              v-model="editingProduct.productInfo"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"
+                              placeholder="Include details about materials, techniques, inspiration, dimensions, care instructions, and the story behind your artwork..."
+                            />
+                          </div>
+                          <p class="text-xs text-gray-500 mt-2">
+                            This content will be displayed as formatted HTML on the product page.
+                          </p>
+                        </div>
 
+                        <div class="form-group">
+                          <div class="flex items-center justify-between mb-3">
+                            <label class="form-label text-base font-semibold">Return & Refund Policy</label>
+                          </div>
+                          <div class="quill-wrapper">
+                            <CoreQuillEditor
+                              v-model="editingProduct.returnPolicy"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"
+                              placeholder="Specify your return timeframe, conditions, process, and any exceptions for this artwork..."
+                            />
+                          </div>
+                          <p class="text-xs text-gray-500 mt-2">
+                            This policy will be displayed as formatted HTML to customers.
+                          </p>
+                        </div>
 
-              <div class="form-group">
-                <div class="flex items-center justify-between mb-3">
-                  <label class="form-label text-base font-semibold">Return & Refund Policy</label>
-                  <!-- <Tooltip text="Your return and refund policy for this artwork">
-                    <InfoCircleIcon class="h-4 w-4 text-blue-400 hover:text-blue-600 transition-colors" />
-                  </Tooltip> -->
-                </div>
-                <div class="quill-wrapper">
-                  <CoreQuillEditor 
-                    v-model="editingProduct.returnPolicy" 
-                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"
-                    placeholder="Specify your return timeframe, conditions, process, and any exceptions for this artwork..."
-                  />
-                </div>
-                <p class="text-xs text-gray-500 mt-2">
-                  This policy will be displayed as formatted HTML to customers.
-                </p>
-              </div>
-
-
-              <div class="form-group">
-                <div class="flex items-center justify-between mb-3">
-                  <label class="form-label text-base font-semibold">Shipping Information</label>
-                  <!-- <Tooltip text="Shipping details and delivery information">
-                    <InfoCircleIcon class="h-4 w-4 text-blue-400 hover:text-blue-600 transition-colors" />
-                  </Tooltip> -->
-                </div>
-                <div class="quill-wrapper">
-                  <CoreQuillEditor 
-                    v-model="editingProduct.shippingInfo" 
-                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"
-                    placeholder="Include shipping costs, delivery times, packaging details, and any special shipping requirements..."
-                  />
-                </div>
-                <p class="text-xs text-gray-500 mt-2">
-                  This information will be displayed as formatted HTML on the product page.
-                </p>
-              </div> 
+                        <div class="form-group">
+                          <div class="flex items-center justify-between mb-3">
+                            <label class="form-label text-base font-semibold">Shipping Information</label>
+                          </div>
+                          <div class="quill-wrapper">
+                            <CoreQuillEditor
+                              v-model="editingProduct.shippingInfo"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500 focus:border-violet-500 sm:text-sm p-3 border-[0.5px] outline-none"
+                              placeholder="Include shipping costs, delivery times, packaging details, and any special shipping requirements..."
+                            />
+                          </div>
+                          <p class="text-xs text-gray-500 mt-2">
+                            This information will be displayed as formatted HTML on the product page.
+                          </p>
+                        </div>
                         
                         <div>
                           <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
@@ -629,22 +852,20 @@
                             </div>
                           </div>
                         </div>
-
-
                         <div v-if="uploadingBatch || uploadingSingle" class="mt-3">
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                          <div 
-                            class="bg-violet-600 h-2.5 rounded-full progress-bar-animate" 
-                            :style="{
-                              width: uploadProgress + '%',
-                              transition: 'width 0.3s ease-in-out'
-                            }"
-                          ></div>
+                          <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div
+                              class="bg-violet-600 h-2.5 rounded-full progress-bar-animate"
+                              :style="{
+                                width: uploadProgress + '%',
+                                transition: 'width 0.3s ease-in-out'
+                              }"
+                            ></div>
+                          </div>
+                          <p class="text-sm text-violet-600 mt-1 animate-pulse">
+                            {{ uploadingBatch ? 'Uploading multiple images...' : 'Uploading image...' }}
+                          </p>
                         </div>
-                        <p class="text-sm text-violet-600 mt-1 animate-pulse">
-                          {{ uploadingBatch ? 'Uploading multiple images...' : 'Uploading image...' }}
-                        </p>
-                      </div>
                       </div>
                     </div>
                     
@@ -804,7 +1025,7 @@
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
               <button :disabled="deleting" @click="confirmDelete" type="button" class="w-full disabled:cursor-not-allowed disabled:opacity-25 inline-flex justify-center rounded-md border border-transparent px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-300">
-                 {{ deleting ? 'processing..' : 'Delete'}}
+                {{ deleting ? 'processing..' : 'Delete'}}
               </button>
               <button @click="isDeleteModalOpen = false" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-300">
                 Cancel
@@ -819,29 +1040,43 @@
 
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted, watch } from 'vue'
-import { 
-  Plus, Filter, Edit, Copy, Trash2, Package, 
+import {
+  Plus, Filter, Edit, Copy, Trash2, Package,
   AlertTriangle, ChevronLeft, ChevronRight, X,
   Eye, ImageIcon, CheckCircle, XCircle
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-import { useUpdateProduct  } from "@/composables/modules/products/useUpdateProduct"
+import { useUpdateProduct } from "@/composables/modules/products/useUpdateProduct"
 import { useBatchUploadFile } from '@/composables/core/useBatchUploads'
 import { useSingleUploadFile } from '@/composables/core/useSingleUpload'
+import { useReorderProducts } from "@/composables/modules/products/useReorderProduct"
 
 // Import composables
 import { useFetchProducts } from '@/composables/modules/products/useFetchProducts'
 import { useFetchCategories } from '@/composables/modules/category/useFetchCategories'
 import { useDeleteProduct } from "@/composables/modules/products/useDeleteProduct"
+
 const { batchUploadFile, loading: uploadingBatch, uploadResponse: batchUploadResponse } = useBatchUploadFile()
 const { singleUploadFile, loading: uploadingSingle, uploadResponse: singleUploadResponse } = useSingleUploadFile()
-
 const { products, loading } = useFetchProducts()
 const { categories } = useFetchCategories()
 const { updateProduct, loading: updating } = useUpdateProduct()
-const { deleteProduct, loading: deleting} = useDeleteProduct()
+const { deleteProduct, loading: deleting } = useDeleteProduct()
+const { 
+  loading: reorderLoading, 
+  error: reorderError, 
+  success: reorderSuccess, 
+  reorderFromSortedArray,
+  resetState: resetReorderState 
+} = useReorderProducts()
+
 const router = useRouter()
 const uploadProgress = ref(0)
+
+// Notification state
+const showNotification = ref(false)
+const notificationMessage = ref('')
+const notificationType = ref<'success' | 'error'>('success')
 
 // Filters state
 const showFilters = ref(false)
@@ -851,6 +1086,11 @@ const filters = ref({
   maxPrice: null as number | null,
   isAvailable: null as boolean | null
 })
+
+// Add after the existing state declarations (around line 50)
+// View mode state
+type ViewMode = 'list' | 'grid'
+const viewMode = ref<ViewMode>('grid') // Default view mode
 
 // Modal states
 const isDeleteModalOpen = ref(false)
@@ -883,6 +1123,19 @@ const editDrawerClasses = ref('translate-x-full')
 const currentSlide = reactive({} as Record<string, number>)
 const detailsCurrentSlide = ref(0)
 
+// Drag and Drop state
+const draggableProducts = ref<any[]>([])
+const draggedIndex = ref<number | null>(null)
+const dropTargetIndex = ref<number | null>(null)
+
+// Watch for changes in products and update draggableProducts
+watch(products, (newProducts) => {
+  if (newProducts) {
+    // Ensure we're working with a copy and sort by position if available
+    draggableProducts.value = [...newProducts].sort((a, b) => (a.position || 0) - (b.position || 0))
+  }
+}, { immediate: true })
+
 // Initialize carousel indices for each product
 onMounted(() => {
   if (products.value) {
@@ -905,9 +1158,9 @@ watch(products, (newProducts) => {
 
 // Filtered products based on applied filters
 const filteredProducts = computed(() => {
-  if (!products.value) return []
+  if (!draggableProducts.value) return []
   
-  return products.value.filter(product => {
+  return draggableProducts.value.filter(product => {
     // Filter by category
     if (filters.value.category && product.category && product.category._id !== filters.value.category) {
       return false
@@ -955,16 +1208,103 @@ const applyFilters = () => {
   showFilters.value = false
 }
 
+// Drag & Drop Logic
+const handleDragStart = (event: DragEvent, index: number) => {
+  if (reorderLoading.value) {
+    event.preventDefault()
+    return
+  }
+  
+  draggedIndex.value = index
+  event.dataTransfer!.effectAllowed = 'move'
+  event.dataTransfer!.setData('text/html', '')
+}
+
+const handleDragEnd = () => {
+  draggedIndex.value = null
+  dropTargetIndex.value = null
+}
+
+const handleDragOver = (event: DragEvent, index: number) => {
+  event.preventDefault()
+  event.dataTransfer!.dropEffect = 'move'
+  
+  if (draggedIndex.value !== null && draggedIndex.value !== index) {
+    dropTargetIndex.value = index
+  }
+}
+
+const handleDragLeave = (event: DragEvent) => {
+  // Only clear drop target if we're actually leaving the element
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  const x = event.clientX
+  const y = event.clientY
+  
+  // Check if mouse is outside the element bounds
+  if (x < rect.left || x > rect.right || y < rect.top || y < rect.bottom) {
+    dropTargetIndex.value = null
+  }
+}
+
+const handleDrop = async (event: DragEvent, dropIndex: number) => {
+  event.preventDefault()
+  
+  if (draggedIndex.value === null || draggedIndex.value === dropIndex || reorderLoading.value) {
+    return
+  }
+
+  // Create a new array with the reordered items
+  const reorderedItems = [...draggableProducts.value]
+  const draggedItem = reorderedItems[draggedIndex.value]
+  
+  // Remove the dragged item from its original position
+  reorderedItems.splice(draggedIndex.value, 1)
+  
+  // Insert the dragged item at the new position
+  reorderedItems.splice(dropIndex, 0, draggedItem)
+  
+  // Update local state immediately for better UX
+  draggableProducts.value = reorderedItems
+  
+  // Call the reorder API
+  try {
+    await reorderFromSortedArray(reorderedItems)
+    
+    if (reorderSuccess.value) {
+      showToast('Products reordered successfully!', 'success')
+      // Refresh products list if needed
+      // await refreshProducts()
+    }
+  } catch (error) {
+    console.error('Failed to reorder products:', error)
+    showToast('Failed to reorder products. Please try again.', 'error')
+  }
+  
+  draggedIndex.value = null
+  dropTargetIndex.value = null
+}
+
+// Utility Functions
+const showToast = (message: string, type: 'success' | 'error') => {
+  notificationMessage.value = message
+  notificationType.value = type
+  showNotification.value = true
+  setTimeout(() => {
+    showNotification.value = false
+  }, 3000) // Hide after 3 seconds
+
+}
+
 // Carousel functions
 const nextSlide = (productId: string) => {
-  const product = products.value.find(p => p.id === productId)
+  const product = draggableProducts.value.find(p => p.id === productId)
   if (product && product.images && product.images.length > 0) {
     currentSlide[productId] = (currentSlide[productId] + 1) % product.images.length
   }
 }
 
 const prevSlide = (productId: string) => {
-  const product = products.value.find(p => p.id === productId)
+  const product = draggableProducts.value.find(p => p.id === productId)
   if (product && product.images && product.images.length > 0) {
     currentSlide[productId] = (currentSlide[productId] - 1 + product.images.length) % product.images.length
   }
@@ -1042,15 +1382,7 @@ const closeDetailsDrawer = () => {
 
 const editProduct = (product: any) => {
   // Close details drawer if open
-  navigateTo(`/dashboard/products/create?id=${product?.id}`)
-  // if (isDetailsDrawerOpen.value) {
-  //   closeDetailsDrawer()
-  //   setTimeout(() => {
-  //     openEditDrawer(product)
-  //   }, 300)
-  // } else {
-  //   openEditDrawer(product)
-  // }
+  router.push(`/dashboard/products/create?id=${product?.id}`)
 }
 
 const openEditDrawer = (product: any) => {
@@ -1085,28 +1417,6 @@ const triggerImageUpload = () => {
     imageInput.value.click()
   }
 }
-
-// const handleImageUpload = (event: Event) => {
-//   const input = event.target as HTMLInputElement
-//   if (input.files && input.files.length > 0) {
-//     for (let i = 0; i < input.files.length; i++) {
-//       const file = input.files[i]
-//       newImageFiles.value.push(file)
-      
-//       // Create preview
-//       const reader = new FileReader()
-//       reader.onload = (e) => {
-//         if (e.target && e.target.result) {
-//           newImagePreviews.value.push(e.target.result as string)
-//         }
-//       }
-//       reader.readAsDataURL(file)
-//     }
-    
-//     // Reset input
-//     if (input) input.value = ''
-//   }
-// }
 
 const handleImageUpload = async (event: Event) => {
   const input = event.target as HTMLInputElement
@@ -1145,7 +1455,7 @@ const handleImageUpload = async (event: Event) => {
       }
     } catch (error) {
       console.error('Error uploading files:', error)
-      alert('Failed to upload images. Please try again.')
+      showToast('Failed to upload images. Please try again.', 'error')
     }
     
     // Reset input
@@ -1195,31 +1505,32 @@ const saveProduct = async () => {
   }
   
   // Find the product in the array and update it
-  const index = products.value.findIndex(p => p.id === editingProduct.value.id)
+  const index = draggableProducts.value.findIndex(p => p.id === editingProduct.value.id)
   if (index !== -1) {
     // Calculate discount percentage if both price and discountPrice are set
     if (editingProduct.value.price && editingProduct.value.discountPrice) {
       const discount = ((editingProduct.value.discountPrice - editingProduct.value.price) / editingProduct.value.discountPrice) * 100
       editingProduct.value.discountPercentage = Math.abs(Math.round(discount))
     }
-
     try {
-    // Call the update product composable with id and payload
-    await updateProduct(
-      editingProduct.value.id, 
-      editingProduct.value
-    )
+      // Call the update product composable with id and payload
+      await updateProduct(
+        editingProduct.value.id, 
+        editingProduct.value
+      )
+      
+      // Close the drawer after successful update
+      closeEditDrawer()
+      
+      // Success handling (e.g., show toast notification)
+      showToast('Product updated successfully!', 'success')
+    } catch (error) {
+      // Error handling
+      console.error('Failed to update product:', error)
+      showToast('Failed to update product. Please try again.', 'error')
+    }
     
-    // Close the drawer after successful update
-    closeEditDrawer()
-    
-    // Success handling (e.g., show toast notification)
-  } catch (error) {
-    // Error handling
-    console.error('Failed to update product:', error)
-  }
-    
-    products.value[index] = { ...editingProduct.value }
+    draggableProducts.value[index] = { ...editingProduct.value }
   }
   
   closeEditDrawer()
@@ -1279,20 +1590,6 @@ const simulateProgress = () => {
   interval = setInterval(updateProgress, 300) as unknown as number
 }
 
-const duplicateProduct = (product: any) => {
-  const newProduct = { 
-    ...JSON.parse(JSON.stringify(product)),
-    id: `duplicate-${Date.now()}`,
-    _id: `duplicate-${Date.now()}`,
-    name: `${product.name} (Copy)`,
-    isNew: true,
-    isFeatured: false
-  }
-  
-  products.value.push(newProduct)
-  currentSlide[newProduct.id] = 0
-}
-
 const confirmDeleteProduct = (product: any) => {
   productToDelete.value = product
   isDeleteModalOpen.value = true
@@ -1306,6 +1603,7 @@ const confirmDelete = () => {
         // Success handling (e.g., show toast notification)
         isDeleteModalOpen.value = false
         productToDelete.value = null
+        showToast('Product deleted successfully!', 'success')
         
         // Close details drawer if open
         if (isDetailsDrawerOpen.value) {
@@ -1315,25 +1613,26 @@ const confirmDelete = () => {
       .catch(error => {
         // Error handling
         console.error('Failed to delete product:', error)
+        showToast('Failed to delete product. Please try again.', 'error')
       })
   }
 }
 
-// const deleteProduct = () => {
-//   if (productToDelete.value) {
-//     const index = products.value.findIndex(p => p.id === productToDelete.value.id)
-//     if (index !== -1) {
-//       products.value.splice(index, 1)
-//     }
-//   }
-//   isDeleteModalOpen.value = false
-//   productToDelete.value = null
+// Add this function after the confirmDeleteProduct function
+const duplicateProduct = (product: any) => {
+  const newProduct = { 
+    ...JSON.parse(JSON.stringify(product)),
+    id: `duplicate-${Date.now()}`,
+    _id: `duplicate-${Date.now()}`,
+    name: `${product.name} (Copy)`,
+    isNew: true,
+    isFeatured: false
+  }
   
-//   // Close details drawer if open
-//   if (isDetailsDrawerOpen.value) {
-//     closeDetailsDrawer()
-//   }
-// }
+  draggableProducts.value.push(newProduct)
+  currentSlide[newProduct.id] = 0
+  showToast('Product duplicated successfully!', 'success')
+}
 
 definePageMeta({
   layout: 'dashboard'
@@ -1469,5 +1768,54 @@ definePageMeta({
 .opacity-100 {
   opacity: 1;
   transition: opacity 0.3s ease-in-out;
+}
+
+/* Enhanced drag and drop feedback */
+.dragging-item {
+  opacity: 0.5;
+  border: 2px dashed #6366f1;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: rotate(2deg) scale(0.95);
+}
+
+.drag-over-item {
+  background-color: #e0e7ff;
+  border: 2px solid #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+  transform: scale(1.05);
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-property: transform, opacity, background-color, border-color, color, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Disable image dragging */
+img {
+  user-drag: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 </style>

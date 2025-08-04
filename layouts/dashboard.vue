@@ -293,7 +293,7 @@ const sidebarSections = [{
     { name: 'Transactions', href: '/dashboard/transactions', icon: Receipt },
     { name: 'Products', href: '/dashboard/products', icon: Package },
     { name: 'Payments', href: '/dashboard/payments', icon: CreditCard },
-    // { name: 'Payment Links', href: '/dashboard/payment-links', icon: ExternalLink },
+    { name: 'Originals', href: '/dashboard/originals', icon: ExternalLink },
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
     { name: 'Notifications', href: '/dashboard/notifications', icon: BellIcon },
     { name: 'Invoices', href: '/dashboard/invoices', icon: FileBarChart },

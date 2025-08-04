@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@cyhnkckali/vue3-color-picker": "^2.0.2",
+    "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
     "@nuxtjs/pwa": "^3.3.5",
     "@nuxtjs/tailwindcss": "^6.0.0",
@@ -44,6 +45,7 @@
     "vue3-datepicker": "^0.4.0",
     "vue3-emoji-picker": "^1.1.8",
     "vue3-toastify": "^0.2.1",
+    "vuedraggable": "^4.1.0",
     "vuejs3-datepicker": "^1.1.3"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
