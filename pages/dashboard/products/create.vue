@@ -1652,7 +1652,7 @@
         if (!formData.value.description?.trim()) {
           errors.value.description = 'Product description is required'
           isValid = false
-        } else if (formData.value.description.length > 500) {
+        } else if (formData.value.description.length > 1000000000) {
           errors.value.description = 'Description must be less than 500 characters'
           isValid = false
         }
