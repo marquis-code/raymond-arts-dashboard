@@ -3,7 +3,7 @@ export default {
   target: "static",
   app: {
     head: {
-      title: "Black Country",
+      title: "Raymond Aworo Art Admin",
       htmlAttrs: { lang: "en" },
       meta: [
         { charset: "utf-8" },
