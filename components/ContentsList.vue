@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+  <div class="overflow-hidden">
     <!-- Header -->
     <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
       <div class="lg:flex items-center space-y-4 lg:space-y-0 justify-between">
@@ -7,7 +7,7 @@
           <h2 class="text-2xl font-bold text-white">Content Management</h2>
           <p class="text-blue-100 mt-1">Manage your website content efficiently</p>
         </div>
-        <div class="flex items-center space-x-4">
+        <div class="lg:flex items-center lg:space-x-4 space-y-3 lg:space-y-0">
           <button
             @click="$emit('seed-content')"
             :disabled="loading"
@@ -32,7 +32,7 @@
     </div>
 
     <!-- Filters -->
-    <div class="px-8 py-6 bg-gray-50 border-b border-gray-200">
+    <div class="lg:px-8 py-6 lg:bg-gray-50 border-b border-gray-200">
       <div class="flex flex-wrap items-center gap-4">
         <div class="flex-1 min-w-[200px]">
           <select
@@ -78,7 +78,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="px-8 py-16 text-center">
+    <div v-if="loading" class="lg:px-8 py-16 text-center">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
       <p class="mt-4 text-gray-600 font-medium">Loading contents...</p>
     </div>
@@ -109,7 +109,7 @@
     </div>
 
     <!-- Content Grid -->
-    <div v-else class="p-8">
+    <div v-else class="lg:p-8">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <TransitionGroup name="content-card" tag="div" class="contents">
           <div

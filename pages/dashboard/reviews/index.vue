@@ -263,9 +263,9 @@
                 />
                 <div>
                   <h3 class="text-sm font-medium text-gray-900 truncate">
-                    {{ review.productId.name }}
+                    {{ review?.productId?.name }}
                   </h3>
-                  <p class="text-xs text-gray-500">{{ review.userName }}</p>
+                  <p class="text-xs text-gray-500">{{ review?.userName }}</p>
                 </div>
               </div>
               <div class="flex items-center space-x-2">
@@ -467,12 +467,12 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm font-medium text-gray-900">
-                    {{ review.productId.name }}
+                    {{ review?.productId?.name }}
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">{{ review.userName }}</div>
-                  <div class="text-sm text-gray-500">{{ review.userRole }}</div>
+                  <div class="text-sm text-gray-900">{{ review?.userName }}</div>
+                  <div class="text-sm text-gray-500">{{ review?.userRole }}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
